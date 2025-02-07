@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
  
+/* Prevenir el zoom del navegador en el contenedor principal */
+.editor-container {
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Estilo específico para la hoja A4 */
+.editor-page {
+  transform-origin: center top;
+  transition: transform 0.1s ease-out;
+  will-change: transform;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

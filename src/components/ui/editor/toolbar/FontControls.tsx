@@ -1,18 +1,25 @@
 import React from 'react';
-import { Style } from '../../../types';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Style } from "../../../../types/editor"
 
 interface FontControlsProps {
   selectedBox: string | null;
   getSelectedBoxStyle: (property: keyof Style) => string;
-  handleStyleChange: (id: string, styleProperty: keyof Style, value: string) => void;
+  handleStyleChange: (id: string, property: keyof Style, value: string) => void;
 }
 
-const FontControls: React.FC<FontControlsProps> = ({
+export const FontControls: React.FC<FontControlsProps> = ({
   selectedBox,
   getSelectedBoxStyle,
   handleStyleChange,
 }) => {
+  const fontFamilies = [
+    'Arial', 'Times New Roman', 'Helvetica', 'Georgia',
+    'Verdana', 'Tahoma', 'Courier New'
+  ];
+  
+  const fontSizes = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 72];
+
   return (
     <div className="flex items-center space-x-2">
       <Select
@@ -21,16 +28,14 @@ const FontControls: React.FC<FontControlsProps> = ({
         disabled={!selectedBox}
       >
         <SelectTrigger className="w-[180px] h-8">
-          <SelectValue placeholder="Seleccionar fuente" />
+          <SelectValue placeholder="fuente" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="Arial">Arial</SelectItem>
-          <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-          <SelectItem value="Helvetica">Helvetica</SelectItem>
-          <SelectItem value="Georgia">Georgia</SelectItem>
-          <SelectItem value="Verdana">Verdana</SelectItem>
-          <SelectItem value="Tahoma">Tahoma</SelectItem>
-          <SelectItem value="Courier New">Courier New</SelectItem>
+          {fontFamilies.map(font => (
+            <SelectItem key={font} value={font}>
+              <span style={{ fontFamily: font }}>{font}</span>
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
@@ -43,7 +48,7 @@ const FontControls: React.FC<FontControlsProps> = ({
           <SelectValue placeholder="Tamaño" />
         </SelectTrigger>
         <SelectContent>
-          {[8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 72].map((size) => (
+          {fontSizes.map(size => (
             <SelectItem key={size} value={size.toString()}>
               {size}
             </SelectItem>
@@ -53,5 +58,3 @@ const FontControls: React.FC<FontControlsProps> = ({
     </div>
   );
 };
-
-export default FontControls;
