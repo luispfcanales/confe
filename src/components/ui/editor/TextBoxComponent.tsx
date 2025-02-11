@@ -23,14 +23,14 @@ export const TextBoxComponent: React.FC<TextBoxProps> = ({
   onResizeStart
 }) => {
   const resizeHandles = [
-    { position: '-top-1 -left-1', cursor: 'nw-resize', direction: 'nw' },
+    //{ position: '-top-1 -left-1', cursor: 'nw-resize', direction: 'nw' },
     //{ position: '-top-1 -right-1', cursor: 'ne-resize', direction: 'ne' },
-    { position: '-bottom-1 -left-1', cursor: 'sw-resize', direction: 'sw' },
+    //{ position: '-bottom-1 -left-1', cursor: 'sw-resize', direction: 'sw' },
     { position: '-bottom-1 -right-1', cursor: 'se-resize', direction: 'se' },
-    { position: 'top-1/2 -left-1 transform -translate-y-1/2', cursor: 'w-resize', direction: 'w' },
-    { position: 'top-1/2 -right-1 transform -translate-y-1/2', cursor: 'e-resize', direction: 'e' },
-    { position: '-top-1 left-1/2 transform -translate-x-1/2', cursor: 'n-resize', direction: 'n' },
-    { position: '-bottom-1 left-1/2 transform -translate-x-1/2', cursor: 's-resize', direction: 's' }
+    //{ position: 'top-1/2 -left-1 transform -translate-y-1/2', cursor: 'w-resize', direction: 'w' },
+    //{ position: 'top-1/2 -right-1 transform -translate-y-1/2', cursor: 'e-resize', direction: 'e' },
+    //{ position: '-top-1 left-1/2 transform -translate-x-1/2', cursor: 'n-resize', direction: 'n' },
+    //{ position: '-bottom-1 left-1/2 transform -translate-x-1/2', cursor: 's-resize', direction: 's' }
   ];
 
   return (
@@ -45,7 +45,7 @@ export const TextBoxComponent: React.FC<TextBoxProps> = ({
     >
       <div
         className="relative w-full h-full"
-        onMouseDown={(e) => onDragStart(e, box.id)}
+        //onMouseDown={(e) => onDragStart(e, box.id)}
       >
         {isSelected && (
           <>

@@ -87,15 +87,16 @@ const A4Editor = () => {
   // }, []);
 
   const containerStyle: React.CSSProperties = {
-    width: '100%',
-    height: 'calc(100vh - 120px)',
-    overflow: 'auto',
+    width: '80vw',
+    height: 'calc(100vh - 100px)',
+    overflow: 'hidden',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
     padding: '2rem',
     backgroundColor: '#f1f5f9',
     touchAction: 'none',
+    margin: 'auto',
   };
   const a4Style: React.CSSProperties = {
     width: `${currentSize.width}px`,
@@ -122,8 +123,8 @@ const A4Editor = () => {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-slate-100">
-        <Card className="rounded-none border-x-0 border-t-0">
+      <div className=" bg-slate-100 ">
+        {/* <Card className="rounded-none border-x-0 border-t-0">
           <div className="max-w-7xl mx-auto px-4 py-2">
             <div className="flex items-center justify-between">
               
@@ -134,11 +135,13 @@ const A4Editor = () => {
               />
             </div>
           </div>
-        </Card>
+        </Card> */}
 
         <div
           className="editor-container"
-          style={containerStyle}
+          style={{
+            ...containerStyle,
+          }}
           onWheel={handleWheelEvent}
         >
           {/* <PageSidebar 
