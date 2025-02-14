@@ -28,6 +28,7 @@ export const TextBoxComponent: React.FC<TextBoxProps> = ({
 
   return (
     <div
+      data-id={box.id}  // Añade esta línea
       //className={`absolute group ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
       className={`absolute group ${isSelected ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-200'}`}
       style={{

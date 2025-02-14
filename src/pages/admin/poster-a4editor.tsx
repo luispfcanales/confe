@@ -6,7 +6,7 @@ import { FormatControls } from '@/components/ui/editor/toolbar/FormatControls';
 import { TextBoxComponent } from '@/components/ui/editor/TextBoxComponent';
 import { useTextBoxes } from '@/hooks/useTextBoxes';
 import { useEditorZoom } from '@/hooks/useEditorZoom';
-import { Style } from '@/types/editor';
+import { Style,EditorState,TextBox,TextBoxData,PageSize } from '@/types/editor';
 import { pageSizes } from '@/constants/pageSizes';
 import html2canvas from 'html2canvas';
 
@@ -45,7 +45,6 @@ const A4Editor = () => {
 
   const [currentPageSize, setCurrentPageSize] = useState<string>('A4');
 
-  //const [containerHeight, setContainerHeight] = useState(window.innerHeight - 120); // altura inicial
   const currentSize = pageSizes[currentPageSize];
   
   const { zoom: zoomNumber, handleZoomIn, handleZoomOut, handleWheelZoom } = useEditorZoom();
@@ -247,6 +246,77 @@ const A4Editor = () => {
     }
   };
 
+  const getEditorState = (textBoxes: TextBox[], currentSize: PageSize): EditorState => {
+    return {
+      pageSize: currentPageSize,
+      width: currentSize.width,
+      height: currentSize.height,
+      textBoxes: textBoxes.map((box) => {
+
+        const boxElement = document.querySelector(`[data-id="${box.id}"]`);
+        const textarea = boxElement?.querySelector('textarea');
+        const computedStyle = textarea ? window.getComputedStyle(textarea) : null;
+        // Usar directamente las posiciones del estado del box
+        const textBoxData: TextBoxData = {
+          id: box.id,
+          text: box.content,
+          x: box.position.x,
+          y: box.position.y,
+          width: box.size.width,
+          height: box.size.height,
+          style: {
+            fontFamily: box.style.fontFamily || computedStyle?.fontFamily || 'Arial',
+            fontSize: box.style.fontSize || computedStyle?.fontSize || '16px',
+            fontWeight: box.style.fontWeight || computedStyle?.fontWeight || 'normal',
+            fontStyle: box.style.fontStyle || computedStyle?.fontStyle || 'normal',
+            textDecoration: box.style.textDecoration || computedStyle?.textDecoration || 'none',
+            textAlign: box.style.textAlign || computedStyle?.textAlign || 'left',
+            color: box.style.color || computedStyle?.color || '#000000',
+            backgroundColor: box.style.backgroundColor || computedStyle?.backgroundColor || 'transparent',
+            padding: computedStyle?.padding || '0px',
+            margin: computedStyle?.margin || '0px'
+          }
+        };
+        return textBoxData;
+      })
+    };
+  };
+
+// Añade la función para exportar a SVG
+const handleExportAsSVG = async () => {
+  try {
+    console.log('TextBoxes antes de convertir:', textBoxes);
+    const editorState = getEditorState(textBoxes, currentSize);
+    console.log('Estado del editor a enviar:', editorState);
+    
+    const response = await fetch('http://localhost:3000/api/export/svg', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(editorState)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Error al exportar SVG: ${errorText}`);
+    }
+
+    const svgBlob = await response.blob();
+    const url = window.URL.createObjectURL(svgBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `document-${currentPageSize}-${new Date().toISOString()}.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error('Error detallado al exportar:', error);
+  }
+};
+
   return (
     <TooltipProvider>
       <div className="bg-slate-100">
@@ -275,6 +345,14 @@ const A4Editor = () => {
               >
                 <Download className="h-4 w-4" />
                 Exportar PNG
+              </Button>
+              <Button
+                onClick={handleExportAsSVG}
+                className="flex items-center gap-2"
+                variant="outline"
+              >
+                <Download className="h-4 w-4" />
+                Exportar SVG
               </Button>
             </div>
           </div>
