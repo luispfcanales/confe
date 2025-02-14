@@ -8,7 +8,7 @@ import { useTextBoxes } from '@/hooks/useTextBoxes';
 import { useEditorZoom } from '@/hooks/useEditorZoom';
 import { Style } from '@/types/editor';
 import { pageSizes } from '@/constants/pageSizes';
-import { PageSidebar } from '@/components/ui/editor/PageSidebar';
+import html2canvas from 'html2canvas';
 
 import {
   ContextMenu,
@@ -22,7 +22,9 @@ import {
   ContextMenuSubContent,
   ContextMenuCheckboxItem,
 } from "@/components/ui/context-menu"
-import { Type, ZoomIn, ZoomOut } from 'lucide-react';
+import { Type, ZoomIn, ZoomOut, Download } from 'lucide-react';
+import { FontControls } from '@/components/ui/editor/toolbar/FontControls';
+import { Button } from '@/components/ui/button';
 
 
 const A4Editor = () => {
@@ -71,21 +73,6 @@ const A4Editor = () => {
     }
   };
 
-
-  // const { zoom: zoomNumber, handleZoomIn, handleZoomOut } = useEditorZoom(
-  //   currentSize.width,
-  //   containerHeight
-  // );
-
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setContainerHeight(window.innerHeight - 120); // 120px es el header
-  //   };
-
-  //   window.addEventListener('resize', handleResize);
-  //   return () => window.removeEventListener('resize', handleResize);
-  // }, []);
-
   const containerStyle: React.CSSProperties = {
     width: '80vw',
     height: 'calc(100vh - 100px)',
@@ -97,6 +84,7 @@ const A4Editor = () => {
     backgroundColor: '#f1f5f9',
     touchAction: 'none',
     margin: 'auto',
+    overflowY:'auto',
   };
   const a4Style: React.CSSProperties = {
     width: `${currentSize.width}px`,
@@ -121,21 +109,176 @@ const A4Editor = () => {
     }
   };
 
+  //aqui para exportar
+
+  const handleExportAsPNG = async () => {
+    if (!editorRef.current) return;
+  
+    try {
+      const editorElement = editorRef.current;
+      const originalStyles = {
+        transform: editorElement.style.transform,
+        position: editorElement.style.position,
+        margin: editorElement.style.margin,
+        width: editorElement.style.width,
+        height: editorElement.style.height
+      };
+  
+      // Prepara el elemento para la captura
+      editorElement.style.transform = 'none';
+      editorElement.style.margin = '0';
+      editorElement.style.width = `${currentSize.width}px`;
+      editorElement.style.height = `${currentSize.height}px`;
+  
+      // Oculta elementos UI
+      const buttons = Array.from(editorElement.querySelectorAll('button')) as HTMLElement[];
+      const resizeHandles = Array.from(editorElement.querySelectorAll('[data-resize-handle]')) as HTMLElement[];
+      
+      buttons.forEach(button => button.style.display = 'none');
+      resizeHandles.forEach(handle => handle.style.display = 'none');
+  
+      // Remueve selección
+      const selectedElements = editorElement.querySelectorAll('.ring-2');
+      selectedElements.forEach(el => {
+        el.classList.remove('ring-2', 'ring-blue-500');
+      });
+  
+      // Preprocesa los textareas antes de la captura
+      const textareas = editorElement.querySelectorAll('textarea') as NodeListOf<HTMLTextAreaElement>;
+      const originalTextareaContents: { element: HTMLTextAreaElement; content: string; style: CSSStyleDeclaration }[] = [];
+  
+      textareas.forEach(textarea => {
+        originalTextareaContents.push({
+          element: textarea,
+          content: textarea.value,
+          style: window.getComputedStyle(textarea)
+        });
+  
+        // Crea un div para reemplazar el textarea
+        const div = document.createElement('div');
+        div.innerHTML = textarea.value.replace(/\n/g, '<br>');
+        
+        // Copia los estilos computados
+        const computedStyle = window.getComputedStyle(textarea);
+        div.style.cssText = textarea.style.cssText;
+        div.style.position = 'absolute';
+        div.style.width = computedStyle.width;
+        div.style.height = 'auto';
+        div.style.minHeight = computedStyle.height;
+        div.style.fontFamily = computedStyle.fontFamily;
+        div.style.fontSize = computedStyle.fontSize;
+        div.style.fontWeight = computedStyle.fontWeight;
+        div.style.fontStyle = computedStyle.fontStyle;
+        div.style.textDecoration = computedStyle.textDecoration;
+        div.style.textAlign = computedStyle.textAlign;
+        div.style.color = computedStyle.color;
+        div.style.lineHeight = computedStyle.lineHeight;
+        div.style.padding = computedStyle.padding;
+        div.style.margin = computedStyle.margin;
+        div.style.border = 'none';
+        div.style.background = 'transparent';
+        div.style.whiteSpace = 'pre-wrap';
+        div.style.overflow = 'visible';
+  
+        // Reemplaza el textarea con el div
+        textarea.parentNode?.insertBefore(div, textarea);
+        textarea.style.display = 'none';
+      });
+  
+      await new Promise(resolve => setTimeout(resolve, 100));
+  
+      const canvas = await html2canvas(editorElement, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        width: currentSize.width,
+        height: currentSize.height,
+        logging: true,
+        onclone: (clonedDoc) => {
+          const style = clonedDoc.createElement('style');
+          style.textContent = `
+            .group {
+              position: absolute !important;
+              transform-origin: top left !important;
+            }
+            div {
+              transform-origin: top left !important;
+              position: absolute !important;
+              white-space: pre-wrap !important;
+            }
+          `;
+          clonedDoc.head.appendChild(style);
+        }
+      });
+  
+      // Restaura los textareas originales
+      textareas.forEach((textarea, index) => {
+        const original = originalTextareaContents[index];
+        textarea.style.display = '';
+        textarea.value = original.content;
+        const divToRemove = textarea.previousSibling;
+        if (divToRemove) {
+          divToRemove.remove();
+        }
+      });
+  
+      // Crea y descarga la imagen
+      const link = document.createElement('a');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      link.download = `document-${currentPageSize}-${timestamp}.png`;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
+  
+      // Restaura todo
+      buttons.forEach(button => button.style.display = '');
+      resizeHandles.forEach(handle => handle.style.display = '');
+      selectedElements.forEach(el => {
+        el.classList.add('ring-2', 'ring-blue-500');
+      });
+  
+      if (editorElement && originalStyles) {
+        Object.entries(originalStyles).forEach(([key, value]) => {
+          editorElement.style[key as any] = value || '';
+        });
+      }
+  
+    } catch (error) {
+      console.error('Error al exportar:', error);
+    }
+  };
+
   return (
     <TooltipProvider>
-      <div className=" bg-slate-100 ">
-        {/* <Card className="rounded-none border-x-0 border-t-0">
+      <div className="bg-slate-100">
+        <Card className="rounded-none border-x-0 border-t-0">
           <div className="max-w-7xl mx-auto px-4 py-2">
             <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <FormatControls
+                  selectedBox={selectedBox}
+                  getSelectedBoxStyle={getSelectedBoxStyle}
+                  handleStyleChange={handleStyleChange}
+                />
+                <div className="h-6 w-px bg-gray-200" />
+                <FontControls
+                  selectedBox={selectedBox}
+                  getSelectedBoxStyle={getSelectedBoxStyle}
+                  handleStyleChange={handleStyleChange}
+                />
+              </div>
               
-              <FormatControls
-                selectedBox={selectedBox}
-                getSelectedBoxStyle={getSelectedBoxStyle}
-                handleStyleChange={handleStyleChange}
-              />
+              {/* Botón de exportar */}
+              <Button
+                onClick={handleExportAsPNG}
+                className="flex items-center gap-2"
+                variant="outline"
+              >
+                <Download className="h-4 w-4" />
+                Exportar PNG
+              </Button>
             </div>
           </div>
-        </Card> */}
+        </Card>
 
         <div
           className="editor-container"
@@ -144,17 +287,6 @@ const A4Editor = () => {
           }}
           onWheel={handleWheelEvent}
         >
-          {/* <PageSidebar 
-            currentPageSize={currentPageSize}
-            onPageSizeChange={setCurrentPageSize}
-            selectedBox={selectedBox}
-            getSelectedBoxStyle={getSelectedBoxStyle}
-            handleStyleChange={handleStyleChange}
-            //zoom={zoom}
-            handleZoomIn={handleZoomIn}
-            handleZoomOut={handleZoomOut}
-            addTextBox ={addTextBox}
-          /> */}
           <ContextMenu>
             <ContextMenuTrigger>
               <div

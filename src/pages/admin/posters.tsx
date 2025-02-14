@@ -3,22 +3,6 @@ import { Plus, Pencil, Trash2, Eye, Download, CalendarDays } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 // Los tipos se mantienen igual...
 type PosterStatus = 'active' | 'draft' | 'archived';
@@ -55,60 +39,60 @@ const PostersPage = () => {
   ]);
 
   // Estados y manejadores se mantienen igual...
-  const [newPoster, setNewPoster] = useState<NewPoster>({
-    title: '',
-    description: '',
-    category: 'investigacion',
-    templateUrl: ''
-  });
+  // const [newPoster, setNewPoster] = useState<NewPoster>({
+  //   title: '',
+  //   description: '',
+  //   category: 'investigacion',
+  //   templateUrl: ''
+  // });
 
-  const [dialogOpen, setDialogOpen] = useState(false);
+  // const [dialogOpen, setDialogOpen] = useState(false);
 
   // Los manejadores se mantienen igual...
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setNewPoster(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  // const handleInputChange = (
+  //   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  // ) => {
+  //   const { name, value } = e.target;
+  //   setNewPoster(prev => ({
+  //     ...prev,
+  //     [name]: value
+  //   }));
+  // };
 
-  const handleCategoryChange = (value: PosterCategory) => {
-    setNewPoster(prev => ({
-      ...prev,
-      category: value
-    }));
-  };
+  // const handleCategoryChange = (value: PosterCategory) => {
+  //   setNewPoster(prev => ({
+  //     ...prev,
+  //     category: value
+  //   }));
+  // };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setNewPoster(prev => ({
-        ...prev,
-        templateUrl: `/templates/${file.name}`
-      }));
-    }
-  };
+  // const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     setNewPoster(prev => ({
+  //       ...prev,
+  //       templateUrl: `/templates/${file.name}`
+  //     }));
+  //   }
+  // };
 
-  const handleCreatePoster = () => {
-    const newPosterWithId: Poster = {
-      id: posters.length + 1,
-      ...newPoster,
-      status: 'active',
-      createdAt: new Date().toISOString().split('T')[0]
-    };
+  // const handleCreatePoster = () => {
+  //   const newPosterWithId: Poster = {
+  //     id: posters.length + 1,
+  //     ...newPoster,
+  //     status: 'active',
+  //     createdAt: new Date().toISOString().split('T')[0]
+  //   };
 
-    setPosters(prev => [...prev, newPosterWithId]);
-    setNewPoster({
-      title: '',
-      description: '',
-      category: 'investigacion',
-      templateUrl: ''
-    });
-    setDialogOpen(false);
-  };
+  //   setPosters(prev => [...prev, newPosterWithId]);
+  //   setNewPoster({
+  //     title: '',
+  //     description: '',
+  //     category: 'investigacion',
+  //     templateUrl: ''
+  //   });
+  //   setDialogOpen(false);
+  // };
 
   const deletePoster = (posterId: number) => {
     setPosters(posters.filter(poster => poster.id !== posterId));
@@ -145,7 +129,7 @@ const PostersPage = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Gestión de Posters Científicos</h1>
-        <Button onClick={() => window.location.href = '/admin/posters/new'}>
+        <Button onClick={() => window.location.href = '/admin/posters/a4-new'}>
           <Plus className="h-4 w-4 mr-2" />
           Nueva Plantilla
         </Button>

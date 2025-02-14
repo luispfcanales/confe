@@ -12,7 +12,12 @@ interface UseTextBoxesState {
   resizeDirection: string | null;
 }
 
-export const useTextBoxes = (pageWidth = 794, pageHeight = 1123) => {
+interface PageDimensions {
+  width: number;
+  height: number;
+}
+
+export const useTextBoxes = () => {
   const [state, setState] = useState<UseTextBoxesState>({
     textBoxes: [],
     selectedBox: null,
@@ -98,38 +103,47 @@ export const useTextBoxes = (pageWidth = 794, pageHeight = 1123) => {
   };
 
   const handleDragMove = (e: React.MouseEvent, zoom: number) => {
+    const container = e.currentTarget as HTMLElement;
+    const containerRect = container.getBoundingClientRect();
+    const pageDimensions = {
+      width: container.offsetWidth,
+      height: container.offsetHeight
+    };
+
     if (state.isDragging && state.selectedBox) {
-      const container = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const currentBox = state.textBoxes.find(box => box.id === state.selectedBox);
       if (!currentBox) return;
- 
-      const x = Math.max(0, Math.min(
-        (e.clientX - container.left - state.dragOffset.x) / (zoom / 100),
-        pageWidth - currentBox.size.width
-      ));
- 
-      const y = Math.max(0, Math.min(
-        (e.clientY - container.top - state.dragOffset.y) / (zoom / 100),
-        pageHeight - currentBox.size.height
-      ));
- 
+
+      const zoomFactor = zoom / 100;
+      const x = (e.clientX - containerRect.left - state.dragOffset.x) / zoomFactor;
+      const y = (e.clientY - containerRect.top - state.dragOffset.y) / zoomFactor;
+
       setState(prev => ({
         ...prev,
         textBoxes: prev.textBoxes.map(box =>
-          box.id === state.selectedBox ? { ...box, position: { x, y } } : box
+          box.id === state.selectedBox
+            ? {
+                ...box,
+                position: {
+                  x: Math.max(0, Math.min(x, pageDimensions.width - box.size.width)),
+                  y: Math.max(0, Math.min(y, pageDimensions.height - box.size.height))
+                }
+              }
+            : box
         )
       }));
     }
- 
+
     if (state.isResizing && state.selectedBox && state.resizeDirection) {
-      const deltaX = (e.clientX - state.resizeStartPos.x) / (zoom / 100);
-      const deltaY = (e.clientY - state.resizeStartPos.y) / (zoom / 100);
-      
+      const zoomFactor = zoom / 100;
+      const deltaX = (e.clientX - state.resizeStartPos.x) / zoomFactor;
+      const deltaY = (e.clientY - state.resizeStartPos.y) / zoomFactor;
+
       setState(prev => ({
         ...prev,
         textBoxes: prev.textBoxes.map(box => {
           if (box.id !== state.selectedBox) return box;
-          return handleResize(box, deltaX, deltaY, state.resizeDirection!, state.resizeStartSize, zoom);
+          return handleResize(box, deltaX, deltaY, state.resizeDirection!, state.resizeStartSize, pageDimensions);
         })
       }));
     }
@@ -141,35 +155,22 @@ export const useTextBoxes = (pageWidth = 794, pageHeight = 1123) => {
     deltaY: number,
     direction: string,
     startSize: { width: number; height: number },
-    zoom: number
+    pageDimensions: PageDimensions
   ): TextBox => {
     let newWidth = startSize.width;
     let newHeight = startSize.height;
     let newX = box.position.x;
     let newY = box.position.y;
- 
-    const scaledDeltaX = deltaX * (zoom / 100);
-    const scaledDeltaY = deltaY * (zoom / 100);
- 
-    if (direction.includes('e')) {
-      newWidth = Math.max(100, Math.min(startSize.width + scaledDeltaX, pageWidth - box.position.x));
+
+    const minWidth = 100;
+    const minHeight = 50;
+
+    if (direction === 'se') {
+      // Permitir crecer hasta el límite de la página
+      newWidth = Math.max(minWidth, Math.min(startSize.width + deltaX, pageDimensions.width - box.position.x));
+      newHeight = Math.max(minHeight, Math.min(startSize.height + deltaY, pageDimensions.height - box.position.y));
     }
-    if (direction.includes('w')) {
-      const maxDeltaX = box.position.x + startSize.width - 100;
-      const clampedDeltaX = Math.max(0, Math.min(scaledDeltaX, maxDeltaX));
-      newWidth = startSize.width - clampedDeltaX;
-      newX = box.position.x + clampedDeltaX;
-    }
-    if (direction.includes('s')) {
-      newHeight = Math.max(50, Math.min(startSize.height + scaledDeltaY, pageHeight - box.position.y));
-    }
-    if (direction.includes('n')) {
-      const maxDeltaY = box.position.y + startSize.height - 50;
-      const clampedDeltaY = Math.max(0, Math.min(scaledDeltaY, maxDeltaY));
-      newHeight = startSize.height - clampedDeltaY;
-      newY = box.position.y + clampedDeltaY;
-    }
- 
+
     return {
       ...box,
       position: { x: newX, y: newY },

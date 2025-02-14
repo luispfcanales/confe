@@ -23,19 +23,13 @@ export const TextBoxComponent: React.FC<TextBoxProps> = ({
   onResizeStart
 }) => {
   const resizeHandles = [
-    //{ position: '-top-1 -left-1', cursor: 'nw-resize', direction: 'nw' },
-    //{ position: '-top-1 -right-1', cursor: 'ne-resize', direction: 'ne' },
-    //{ position: '-bottom-1 -left-1', cursor: 'sw-resize', direction: 'sw' },
-    { position: '-bottom-1 -right-1', cursor: 'se-resize', direction: 'se' },
-    //{ position: 'top-1/2 -left-1 transform -translate-y-1/2', cursor: 'w-resize', direction: 'w' },
-    //{ position: 'top-1/2 -right-1 transform -translate-y-1/2', cursor: 'e-resize', direction: 'e' },
-    //{ position: '-top-1 left-1/2 transform -translate-x-1/2', cursor: 'n-resize', direction: 'n' },
-    //{ position: '-bottom-1 left-1/2 transform -translate-x-1/2', cursor: 's-resize', direction: 's' }
+    { position: '-bottom-2 -right-2', cursor: 'se-resize', direction: 'se' }
   ];
 
   return (
     <div
-      className={`absolute ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
+      //className={`absolute group ${isSelected ? 'ring-2 ring-blue-500' : ''}`}
+      className={`absolute group ${isSelected ? 'ring-2 ring-blue-500' : 'hover:ring-2 hover:ring-blue-200'}`}
       style={{
         left: box.position.x,
         top: box.position.y,
@@ -45,26 +39,42 @@ export const TextBoxComponent: React.FC<TextBoxProps> = ({
     >
       <div
         className="relative w-full h-full"
-        //onMouseDown={(e) => onDragStart(e, box.id)}
+        onMouseDown={(e) => {
+          if (e.ctrlKey) {
+            e.preventDefault();
+            onDragStart(e, box.id);
+          }
+        }}
       >
         {isSelected && (
           <>
             <Button
               variant="ghost"
               size="sm"
-              className="absolute -top-4 -right-4 h-8 w-8 p-0"
+              className="absolute -top-4 -right-4 h-8 w-8 p-0 bg-white hover:bg-red-50 shadow-sm"
               onClick={() => onDelete(box.id)}
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4 text-red-500" />
             </Button>
 
             {resizeHandles.map(({ position, cursor, direction }) => (
               <div
                 key={direction}
-                className={`absolute ${position} w-3 h-3 bg-white border-2 border-blue-500`}
-                style={{ cursor }}
-                onMouseDown={(e) => onResizeStart(e, box.id, direction)}
-              />
+                className={`absolute ${position} w-5 h-5 bg-white border-2 border-blue-500 shadow-md hover:border-blue-600 hover:bg-blue-50 transition-colors duration-150`}
+                style={{ 
+                  cursor,
+                  transform: 'translate(50%, 50%)',
+                  zIndex: 50 
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  onResizeStart(e, box.id, direction);
+                }}
+              >
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-blue-500 rounded-sm" />
+                </div>
+              </div>
             ))}
           </>
         )}
