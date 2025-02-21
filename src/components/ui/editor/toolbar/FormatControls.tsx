@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Style } from '@/types/editor';
@@ -69,7 +69,13 @@ export const FormatControls: React.FC<FormatControlsProps> = ({
       tooltip: "Alinear a la derecha",
       value: 'right',
       getValue: () => getSelectedBoxStyle('textAlign') === 'right'
-    }
+    },
+    {
+      icon: <AlignJustify className="h-4 w-4" />,
+      tooltip: "Justificar",
+      value: "justify",
+      getValue: () => getSelectedBoxStyle("textAlign") === "justify",
+    },
   ];
 
   return (

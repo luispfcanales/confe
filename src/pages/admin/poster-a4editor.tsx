@@ -6,8 +6,10 @@ import { FormatControls } from '@/components/ui/editor/toolbar/FormatControls';
 import { TextBoxComponent } from '@/components/ui/editor/TextBoxComponent';
 import { useTextBoxes } from '@/hooks/useTextBoxes';
 import { useEditorZoom } from '@/hooks/useEditorZoom';
-import { Style,EditorState,TextBox,TextBoxData,PageSize } from '@/types/editor';
+import { Style } from '@/types/editor';
 import { pageSizes } from '@/constants/pageSizes';
+import { LineBreakToggle } from '@/components/ui/editor/toolbar/LineBreakToggle';
+import { exportAsSVG,exportAsPDF, getEditorState } from '@/utils/exportUtils';
 import html2canvas from 'html2canvas';
 
 import {
@@ -22,9 +24,10 @@ import {
   ContextMenuSubContent,
   ContextMenuCheckboxItem,
 } from "@/components/ui/context-menu"
-import { Type, ZoomIn, ZoomOut, Download } from 'lucide-react';
+import { Type, ZoomIn, ZoomOut, Download,File,FileImageIcon } from 'lucide-react';
 import { FontControls } from '@/components/ui/editor/toolbar/FontControls';
 import { Button } from '@/components/ui/button';
+
 
 
 const A4Editor = () => {
@@ -39,7 +42,8 @@ const A4Editor = () => {
     handleDragMove,
     handleDragEnd,
     deleteTextBox,
-    addTextBox
+    addTextBox,
+    removeLineBreaksInSelection
   } = useTextBoxes();
   
 
@@ -85,7 +89,7 @@ const A4Editor = () => {
     margin: 'auto',
     overflowY:'auto',
   };
-  const a4Style: React.CSSProperties = {
+  const sheetStyle: React.CSSProperties = {
     width: `${currentSize.width}px`,
     height: `${currentSize.height}px`,
     backgroundColor: '#ffffff',
@@ -108,212 +112,34 @@ const A4Editor = () => {
     }
   };
 
-  //aqui para exportar
 
-  const handleExportAsPNG = async () => {
-    if (!editorRef.current) return;
-  
-    try {
-      const editorElement = editorRef.current;
-      const originalStyles = {
-        transform: editorElement.style.transform,
-        position: editorElement.style.position,
-        margin: editorElement.style.margin,
-        width: editorElement.style.width,
-        height: editorElement.style.height
-      };
-  
-      // Prepara el elemento para la captura
-      editorElement.style.transform = 'none';
-      editorElement.style.margin = '0';
-      editorElement.style.width = `${currentSize.width}px`;
-      editorElement.style.height = `${currentSize.height}px`;
-  
-      // Oculta elementos UI
-      const buttons = Array.from(editorElement.querySelectorAll('button')) as HTMLElement[];
-      const resizeHandles = Array.from(editorElement.querySelectorAll('[data-resize-handle]')) as HTMLElement[];
-      
-      buttons.forEach(button => button.style.display = 'none');
-      resizeHandles.forEach(handle => handle.style.display = 'none');
-  
-      // Remueve selección
-      const selectedElements = editorElement.querySelectorAll('.ring-2');
-      selectedElements.forEach(el => {
-        el.classList.remove('ring-2', 'ring-blue-500');
-      });
-  
-      // Preprocesa los textareas antes de la captura
-      const textareas = editorElement.querySelectorAll('textarea') as NodeListOf<HTMLTextAreaElement>;
-      const originalTextareaContents: { element: HTMLTextAreaElement; content: string; style: CSSStyleDeclaration }[] = [];
-  
-      textareas.forEach(textarea => {
-        originalTextareaContents.push({
-          element: textarea,
-          content: textarea.value,
-          style: window.getComputedStyle(textarea)
-        });
-  
-        // Crea un div para reemplazar el textarea
-        const div = document.createElement('div');
-        div.innerHTML = textarea.value.replace(/\n/g, '<br>');
-        
-        // Copia los estilos computados
-        const computedStyle = window.getComputedStyle(textarea);
-        div.style.cssText = textarea.style.cssText;
-        div.style.position = 'absolute';
-        div.style.width = computedStyle.width;
-        div.style.height = 'auto';
-        div.style.minHeight = computedStyle.height;
-        div.style.fontFamily = computedStyle.fontFamily;
-        div.style.fontSize = computedStyle.fontSize;
-        div.style.fontWeight = computedStyle.fontWeight;
-        div.style.fontStyle = computedStyle.fontStyle;
-        div.style.textDecoration = computedStyle.textDecoration;
-        div.style.textAlign = computedStyle.textAlign;
-        div.style.color = computedStyle.color;
-        div.style.lineHeight = computedStyle.lineHeight;
-        div.style.padding = computedStyle.padding;
-        div.style.margin = computedStyle.margin;
-        div.style.border = 'none';
-        div.style.background = 'transparent';
-        div.style.whiteSpace = 'pre-wrap';
-        div.style.overflow = 'visible';
-  
-        // Reemplaza el textarea con el div
-        textarea.parentNode?.insertBefore(div, textarea);
-        textarea.style.display = 'none';
-      });
-  
-      await new Promise(resolve => setTimeout(resolve, 100));
-  
-      const canvas = await html2canvas(editorElement, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff',
-        width: currentSize.width,
-        height: currentSize.height,
-        logging: true,
-        onclone: (clonedDoc) => {
-          const style = clonedDoc.createElement('style');
-          style.textContent = `
-            .group {
-              position: absolute !important;
-              transform-origin: top left !important;
-            }
-            div {
-              transform-origin: top left !important;
-              position: absolute !important;
-              white-space: pre-wrap !important;
-            }
-          `;
-          clonedDoc.head.appendChild(style);
-        }
-      });
-  
-      // Restaura los textareas originales
-      textareas.forEach((textarea, index) => {
-        const original = originalTextareaContents[index];
-        textarea.style.display = '';
-        textarea.value = original.content;
-        const divToRemove = textarea.previousSibling;
-        if (divToRemove) {
-          divToRemove.remove();
-        }
-      });
-  
-      // Crea y descarga la imagen
-      const link = document.createElement('a');
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      link.download = `document-${currentPageSize}-${timestamp}.png`;
-      link.href = canvas.toDataURL('image/png', 1.0);
-      link.click();
-  
-      // Restaura todo
-      buttons.forEach(button => button.style.display = '');
-      resizeHandles.forEach(handle => handle.style.display = '');
-      selectedElements.forEach(el => {
-        el.classList.add('ring-2', 'ring-blue-500');
-      });
-  
-      if (editorElement && originalStyles) {
-        Object.entries(originalStyles).forEach(([key, value]) => {
-          editorElement.style[key as any] = value || '';
-        });
-      }
-  
-    } catch (error) {
-      console.error('Error al exportar:', error);
-    }
-  };
-
-  const getEditorState = (textBoxes: TextBox[], currentSize: PageSize): EditorState => {
-    return {
-      pageSize: currentPageSize,
-      width: currentSize.width,
-      height: currentSize.height,
-      textBoxes: textBoxes.map((box) => {
-
-        const boxElement = document.querySelector(`[data-id="${box.id}"]`);
-        const textarea = boxElement?.querySelector('textarea');
-        const computedStyle = textarea ? window.getComputedStyle(textarea) : null;
-        // Usar directamente las posiciones del estado del box
-        const textBoxData: TextBoxData = {
-          id: box.id,
-          text: box.content,
-          x: box.position.x,
-          y: box.position.y,
-          width: box.size.width,
-          height: box.size.height,
-          style: {
-            fontFamily: box.style.fontFamily || computedStyle?.fontFamily || 'Arial',
-            fontSize: box.style.fontSize || computedStyle?.fontSize || '16px',
-            fontWeight: box.style.fontWeight || computedStyle?.fontWeight || 'normal',
-            fontStyle: box.style.fontStyle || computedStyle?.fontStyle || 'normal',
-            textDecoration: box.style.textDecoration || computedStyle?.textDecoration || 'none',
-            textAlign: box.style.textAlign || computedStyle?.textAlign || 'left',
-            color: box.style.color || computedStyle?.color || '#000000',
-            backgroundColor: box.style.backgroundColor || computedStyle?.backgroundColor || 'transparent',
-            padding: computedStyle?.padding || '0px',
-            margin: computedStyle?.margin || '0px'
-          }
-        };
-        return textBoxData;
-      })
-    };
-  };
-
-// Añade la función para exportar a SVG
 const handleExportAsSVG = async () => {
   try {
     console.log('TextBoxes antes de convertir:', textBoxes);
-    const editorState = getEditorState(textBoxes, currentSize);
-    console.log('Estado del editor a enviar:', editorState);
-    
-    const response = await fetch('http://localhost:3000/api/export/svg', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(editorState)
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Error al exportar SVG: ${errorText}`);
-    }
-
-    const svgBlob = await response.blob();
-    const url = window.URL.createObjectURL(svgBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `document-${currentPageSize}-${new Date().toISOString()}.svg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-
+    const editorState = getEditorState(
+      textBoxes, 
+      currentPageSize,
+      currentSize.width,
+      currentSize.height
+    );
+    await exportAsSVG(editorState);
   } catch (error) {
-    console.error('Error detallado al exportar:', error);
+    console.error('Error al exportar SVG:', error);
+  }
+};
+
+const handleExportAsPDF = async () => {
+  try {
+    console.log('TextBoxes antes de convertir:', textBoxes);
+    const editorState = getEditorState(
+      textBoxes, 
+      currentPageSize,
+      currentSize.width,
+      currentSize.height
+    );
+    await exportAsPDF(editorState);
+  } catch (error) {
+    console.error('Error al exportar PDF:', error);
   }
 };
 
@@ -335,25 +161,22 @@ const handleExportAsSVG = async () => {
                   getSelectedBoxStyle={getSelectedBoxStyle}
                   handleStyleChange={handleStyleChange}
                 />
+                <LineBreakToggle
+                  selectedBox={selectedBox}
+                  onRemoveLineBreaks={() => {
+                    if (selectedBox) {
+                      const textarea = document.querySelector(`[data-id="${selectedBox}"] textarea`) as HTMLTextAreaElement;
+                      if (textarea) {
+                        const start = textarea.selectionStart;
+                        const end = textarea.selectionEnd;
+                        if (start !== end) {
+                          removeLineBreaksInSelection(selectedBox, start, end);
+                        }
+                      }
+                    }
+                  }}
+                />
               </div>
-              
-              {/* Botón de exportar */}
-              <Button
-                onClick={handleExportAsPNG}
-                className="flex items-center gap-2"
-                variant="outline"
-              >
-                <Download className="h-4 w-4" />
-                Exportar PNG
-              </Button>
-              <Button
-                onClick={handleExportAsSVG}
-                className="flex items-center gap-2"
-                variant="outline"
-              >
-                <Download className="h-4 w-4" />
-                Exportar SVG
-              </Button>
             </div>
           </div>
         </Card>
@@ -370,7 +193,7 @@ const handleExportAsSVG = async () => {
               <div
                 ref={editorRef}
                 className="editor-page bg-white"
-                style={a4Style}
+                style={sheetStyle}
                 onClick={handleBackgroundClick}
                 onMouseMove={(e) => handleDragMove(e, zoomNumber)}
                 onMouseUp={handleDragEnd}
@@ -386,6 +209,7 @@ const handleExportAsSVG = async () => {
                     onChange={handleTextChange}
                     onDragStart={handleDragStart}
                     onResizeStart={handleResizeStart}
+                    onRemoveLineBreaks={removeLineBreaksInSelection}
                   />
                 ))}
 
@@ -405,6 +229,24 @@ const handleExportAsSVG = async () => {
                 <Type className="h-4 w-4 mr-2" />
                 Agregar texto
               </ContextMenuItem>
+              
+              <ContextMenuSeparator />
+
+              <ContextMenuSub>
+                <ContextMenuSubTrigger inset>Exportar</ContextMenuSubTrigger>
+                <ContextMenuSubContent className="w-20">
+                  <ContextMenuItem onClick={handleExportAsSVG}>
+                    <Download className="h-4 w-4 mr-4" />
+                    SVG
+                    <FileImageIcon className="h-4 w-4 ml-2" />
+                  </ContextMenuItem>
+                  <ContextMenuItem onClick={handleExportAsPDF}>
+                    <Download className="h-4 w-4 mr-4" />
+                    PDF
+                    <File className="h-4 w-4 ml-2" />
+                  </ContextMenuItem>
+                </ContextMenuSubContent>
+              </ContextMenuSub>
               
               <ContextMenuSeparator />
               
@@ -434,6 +276,8 @@ const handleExportAsSVG = async () => {
                   ))}
                 </ContextMenuSubContent>
               </ContextMenuSub>
+
+              
               {/* Puedes agregar más tamaños de página aquí */}
             </ContextMenuContent>
           </ContextMenu>

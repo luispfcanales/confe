@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import { TextBox } from '@/types/editor';
@@ -11,6 +11,8 @@ interface TextBoxProps {
   onChange: (id: string, content: string) => void;
   onDragStart: (e: React.MouseEvent, id: string) => void;
   onResizeStart: (e: React.MouseEvent, id: string, direction: string) => void;
+  disableLineBreaks?: boolean;
+  onRemoveLineBreaks: (id: string, start: number, end: number) => void;
 }
 
 export const TextBoxComponent: React.FC<TextBoxProps> = ({
@@ -20,11 +22,30 @@ export const TextBoxComponent: React.FC<TextBoxProps> = ({
   onDelete,
   onChange,
   onDragStart,
-  onResizeStart
+  onResizeStart,
+  disableLineBreaks = false,
+  onRemoveLineBreaks 
 }) => {
   const resizeHandles = [
     { position: '-bottom-2 -right-2', cursor: 'se-resize', direction: 'se' }
   ];
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [selection, setSelection] = useState({ start: 0, end: 0 });
+
+  // Manejar selección de texto
+  const handleTextSelection = () => {
+    if (!textareaRef.current) return;
+    
+    const start = textareaRef.current.selectionStart;
+    const end = textareaRef.current.selectionEnd;
+    setSelection({ start, end });
+    
+    // Si hay selección, notificar al componente padre
+    if (start !== end) {
+      onRemoveLineBreaks(box.id, start, end);
+    }
+  };
 
   return (
     <div
@@ -94,11 +115,13 @@ export const TextBoxComponent: React.FC<TextBoxProps> = ({
             border: box.style.borderStyle !== 'none' 
               ? `${box.style.borderWidth} ${box.style.borderStyle} currentColor` 
               : 'none',
+            whiteSpace: disableLineBreaks ? 'nowrap' : 'pre-wrap',
           }}
           onClick={(e) => {
             e.stopPropagation();
             onSelect(box.id);
           }}
+          onSelect={handleTextSelection}
         />
       </div>
     </div>

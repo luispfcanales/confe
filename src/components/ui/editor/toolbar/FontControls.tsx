@@ -14,7 +14,7 @@ export const FontControls: React.FC<FontControlsProps> = ({
   handleStyleChange,
 }) => {
   const fontFamilies = [
-    'Arial', 'Times New Roman', 'Helvetica', 'Georgia',
+    'Calibri','Arial', 'Times New Roman', 'Helvetica', 'Georgia',
     'Verdana', 'Tahoma', 'Courier New'
   ];
   

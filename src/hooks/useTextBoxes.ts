@@ -36,15 +36,36 @@ export const useTextBoxes = () => {
     size: { width: 200, height: 100 },
     style: {
       fontSize: '16px',
-      fontFamily: 'Arial',
+      fontFamily: 'Calibri',
       fontWeight: 'normal',
       fontStyle: 'normal',
       textDecoration: 'none',
       textAlign: 'left',
       borderWidth: '1px',
       borderStyle: 'none',
+      backgroundColor: 'rgba(255, 255, 255, 0)',
+      color: 'black',
     }
   });
+
+  const removeLineBreaksInSelection = (id: string, start: number, end: number) => {
+    setState(prev => ({
+      ...prev,
+      textBoxes: prev.textBoxes.map(box => {
+        if (box.id !== id) return box;
+        
+        const content = box.content;
+        const selectedText = content.slice(start, end);
+        const modifiedText = selectedText.replace(/\n/g, ' ');
+        
+        return {
+          ...box,
+          content: content.slice(0, start) + modifiedText + content.slice(end)
+        };
+      })
+    }));
+  };
+  
 
   const addTextBox = (x: number, y: number) => {
     const newBox = createNewTextBox(x, y);
@@ -205,6 +226,7 @@ export const useTextBoxes = () => {
     handleResizeStart,
     handleDragMove,
     handleDragEnd,
-    deleteTextBox
+    deleteTextBox,
+    removeLineBreaksInSelection
   };
 };
