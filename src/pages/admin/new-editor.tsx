@@ -30,7 +30,7 @@ import { Button } from '@/components/ui/button';
 
 
 
-const A4Editor = () => {
+const NewEditor = () => {
   const {
     textBoxes,
     selectedBox,
@@ -290,4 +290,4 @@ const handleExportAsPDF = async () => {
 
 
 
-export default A4Editor;
+export default NewEditor;
