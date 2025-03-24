@@ -1,8 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from "./pages/home";
+import PublicationPage from "./pages/publications";
+import Register from "./pages/register";
 import Login from "./pages/login";
 import AdminLayout from './components/admin/Layout';
-import UsersPage from './pages/admin/users';
+//import UsersPage from './pages/admin/users';
+import Dashboard from './pages/admin/dashboard/dashboard';
 import RolesPage from './pages/admin/users/roles';
 import AdministratorsPage from './pages/admin/users/administrators';
 import ResearchersPage from './pages/admin/users/researchers';
@@ -26,6 +29,8 @@ function App(): JSX.Element {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/publications" element={<PublicationPage />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         
         {/* Rutas protegidas del administrador */}
@@ -34,7 +39,7 @@ function App(): JSX.Element {
             <AdminLayout />
           </ProtectedRoute>
         }>
-          <Route path="dashboard" element={<div>Dashboard</div>} />
+          <Route path="dashboard" element={<Dashboard/>} />
           {/* <Route path="users" element={<UsersPage />} /> */}
           <Route path="users/roles" element={<RolesPage />} />
           <Route path="users/administrators" element={<AdministratorsPage />} />
