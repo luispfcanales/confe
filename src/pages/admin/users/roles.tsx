@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { API_URL } from '@/constants/api'
 import { EditRoleModal } from "@/components/modals/EditRoleModal"
 import { Role, createColumns } from "./columns"
 import { DataTable } from "./data-table"
 
 async function getData(): Promise<Role[]> {
   try {
-    const response = await fetch('http://localhost:3000/api/roles');
+    const response = await fetch(`${API_URL}/api/roles`);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }

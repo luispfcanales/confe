@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { API_URL } from '@/constants/api'
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,14 +29,21 @@ const Register = () => {
   const [loading, setLoading] = useState(false)
   const [userData, setUserData] = useState<UserData | null>(null)
 
+  // Add effect to clear data when isInternal changes
+  useEffect(() => {
+    setUsername('')
+    setUserData(null)
+  }, [isInternal])
+
   const fetchUserData = async () => {
     if (!username) return
     setLoading(true)
     try {
+    const response = await fetch(`${API_URL}/api/roles`);
       const endpoint = isInternal 
         ? userType === 'student'
-          ? `/api/Oti/student/${username}`
-          : `/api/Oti/teacher/${username}`
+          ? `${API_URL}/api/data/student/${username}`
+          : `${API_URL}/api/data/teacher/${username}`
         : null
 
       if (endpoint) {
@@ -121,7 +129,14 @@ const Register = () => {
                     onClick={fetchUserData}
                     disabled={loading || !username}
                   >
-                    Buscar
+                    {loading ? (
+                      <>
+                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-b-transparent"></div>
+                        Buscando...
+                      </>
+                    ) : (
+                      'Buscar'
+                    )}
                   </Button>
                 </div>
               </div>
