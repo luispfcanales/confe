@@ -1,5 +1,3 @@
-import React from 'react';
-
 const ResearchersPage = () => {
   return (
     <div className="p-6">

@@ -39,7 +39,7 @@ const Register = () => {
     if (!username) return
     setLoading(true)
     try {
-    const response = await fetch(`${API_URL}/api/roles`);
+    // const response = await fetch(`${API_URL}/api/roles`);
       const endpoint = isInternal 
         ? userType === 'student'
           ? `${API_URL}/api/data/student/${username}`

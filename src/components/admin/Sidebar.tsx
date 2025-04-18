@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -64,7 +64,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('userRole');
-    window.location.href = '/login';
+    window.location.href = '/';
   };
 
   const toggleSubmenu = (path: string) => {

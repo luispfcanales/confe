@@ -10,7 +10,7 @@ import { Style } from '@/types/editor';
 import { pageSizes } from '@/constants/pageSizes';
 import { LineBreakToggle } from '@/components/ui/editor/toolbar/LineBreakToggle';
 import { exportAsSVG,exportAsPDF, getEditorState } from '@/utils/exportUtils';
-import html2canvas from 'html2canvas';
+
 
 import {
   ContextMenu,
@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/context-menu"
 import { Type, ZoomIn, ZoomOut, Download,File,FileImageIcon } from 'lucide-react';
 import { FontControls } from '@/components/ui/editor/toolbar/FontControls';
-import { Button } from '@/components/ui/button';
+
 
 
 

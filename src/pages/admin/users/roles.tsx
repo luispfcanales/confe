@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { API_URL } from '@/constants/api'
 import { EditRoleModal } from "@/components/modals/EditRoleModal"
 import { Role, createColumns } from "./columns"

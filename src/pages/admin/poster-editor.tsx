@@ -1,5 +1,5 @@
 // src/pages/admin/poster-editor.tsx
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Excalidraw } from '@excalidraw/excalidraw';
 import { ArrowLeft, Save, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';

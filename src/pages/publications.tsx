@@ -126,14 +126,14 @@ const PublicationsPage = (): JSX.Element => {
   const years = Object.keys(postersByYear).sort((a, b) => Number(b) - Number(a))
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-100/80 to-gray-200/80 p-6">
       <div className="container max-w-7xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate(-1)}
-            className="hover:bg-gray-200"
+            className="hover:bg-gray-200/50"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -141,7 +141,7 @@ const PublicationsPage = (): JSX.Element => {
         </div>
 
         <Tabs defaultValue="posters" className="w-full">
-          <TabsList className="mb-8 bg-white p-1 shadow-sm rounded-lg">
+          <TabsList className="mb-8 bg-white/70 p-1 shadow-sm rounded-lg backdrop-blur-sm">
             <TabsTrigger 
               value="posters"
               className="px-6 py-2 data-[state=active]:bg-primary data-[state=active]:text-white flex items-center gap-2"
@@ -160,7 +160,7 @@ const PublicationsPage = (): JSX.Element => {
 
           <TabsContent value="posters">
             <Tabs defaultValue={years[0]} className="w-full">
-              <TabsList className="mb-8 bg-white p-1 shadow-sm rounded-lg">
+              <TabsList className="mb-8 bg-white/70 p-1 shadow-sm rounded-lg backdrop-blur-sm">
                 {years.map((year) => (
                   <TabsTrigger key={year} value={year}>
                     {year}
@@ -172,7 +172,7 @@ const PublicationsPage = (): JSX.Element => {
                 <TabsContent key={year} value={year}>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {postersByYear[Number(year)].map((poster) => (
-                      <Card key={poster.id} className="hover:shadow-xl transition-all duration-300 bg-white border-none">
+                      <Card key={poster.id} className="hover:shadow-xl transition-all duration-300 bg-white/80 border-none backdrop-blur-sm">
                         <CardHeader className="space-y-2">
                           <CardTitle className="text-xl font-bold text-gray-800 hover:text-primary transition-colors">
                             {poster.title}

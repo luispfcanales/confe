@@ -31,7 +31,7 @@ export const TextBoxComponent: React.FC<TextBoxProps> = ({
   ];
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [selection, setSelection] = useState({ start: 0, end: 0 });
+  const [_selection, setSelection] = useState({ start: 0, end: 0 });
 
   // Manejar selección de texto
   const handleTextSelection = () => {

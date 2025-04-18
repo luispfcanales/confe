@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { Plus, Pencil, Trash2, Eye, Download, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,12 +18,12 @@ interface Poster {
   createdAt: string;
 }
 
-interface NewPoster {
-  title: string;
-  description: string;
-  category: PosterCategory;
-  templateUrl: string;
-}
+// interface NewPoster {
+//   title: string;
+//   description: string;
+//   category: PosterCategory;
+//   templateUrl: string;
+// }
 
 const PostersPage = () => {
   const [posters, setPosters] = useState<Poster[]>([
