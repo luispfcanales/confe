@@ -33,7 +33,7 @@ const Register = () => {
   useEffect(() => {
     setUsername('')
     setUserData(null)
-  }, [isInternal])
+  }, [isInternal, userType])
 
   const fetchUserData = async () => {
     if (!username) return
