@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { toast } from "sonner"
+import StudentStep from './components/sudent/StudentStep'
 
 interface UserData {
   userName: string
@@ -39,8 +40,8 @@ const Register = () => {
     if (!username) return
     setLoading(true)
     try {
-    // const response = await fetch(`${API_URL}/api/roles`);
-      const endpoint = isInternal 
+      // const response = await fetch(`${API_URL}/api/roles`);
+      const endpoint = isInternal
         ? userType === 'student'
           ? `${API_URL}/api/data/student/${username}`
           : `${API_URL}/api/data/teacher/${username}`
@@ -64,8 +65,8 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
       <div className="container max-w-2xl mx-auto">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={() => navigate('/')}
           className="mb-6"
         >
@@ -125,7 +126,7 @@ const Register = () => {
                   />
                 </div>
                 <div className="flex items-end">
-                  <Button 
+                  <Button
                     onClick={fetchUserData}
                     disabled={loading || !username}
                   >
@@ -142,40 +143,6 @@ const Register = () => {
               </div>
             )}
 
-            {userData && (
-              <div className="space-y-4 border rounded-lg p-4 bg-gray-50">
-                <h3 className="font-medium">Datos encontrados:</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Nombres</Label>
-                    <Input value={userData.name} readOnly />
-                  </div>
-                  <div>
-                    <Label>DNI</Label>
-                    <Input value={userData.dni} readOnly />
-                  </div>
-                  <div>
-                    <Label>Apellido Paterno</Label>
-                    <Input value={userData.paternalSurname} readOnly />
-                  </div>
-                  <div>
-                    <Label>Apellido Materno</Label>
-                    <Input value={userData.maternalSurname} readOnly />
-                  </div>
-                  <div className="col-span-2">
-                    <Label>Email Institucional</Label>
-                    <Input value={userData.email} readOnly />
-                  </div>
-                  <div className="col-span-2">
-                    <Label>{userType === 'student' ? 'Carrera' : 'Departamento'}</Label>
-                    <Input 
-                      value={userType === 'student' ? userData.carrerName : userData.academicDepartament} 
-                      readOnly 
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
 
             {!isInternal && (
               <div className="space-y-4">
@@ -209,10 +176,11 @@ const Register = () => {
               </div>
             )}
 
-            <Button className="w-full">
-              Registrarse
-            </Button>
+            {userData &&
+              <StudentStep userType={userType} userData={userData} />
+            }
           </CardContent>
+
         </Card>
       </div>
     </div>
