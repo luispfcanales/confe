@@ -7,12 +7,12 @@ import { Edit } from "lucide-react"
 
 export type Role = {
   ID: string
-  Name: string
-  Status: boolean
-  Description: string
-  CreatedAt: string
-  UpdatedAt: string
-  DeletedAt: string | null
+  name: string
+  status: boolean
+  description: string
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
 }
 
 export type Payment = {
@@ -67,33 +67,33 @@ export function createColumns<TData extends { ID: string }>(type: 'role' | 'paym
     return [
       ...baseColumns,
       {
-        accessorKey: "Name",
-        header: "Nombre",
+        accessorKey: "name",
+        header: "Rol",
       },
       {
-        accessorKey: "Status",
+        accessorKey: "status",
         header: "Estado",
         cell: ({ row }) => (
           <div>
             <span className={`px-2 py-1 rounded-md text-xs font-medium inline-block ${
-              row.getValue("Status") 
+              row.getValue("status") 
                 ? "bg-green-100 text-green-700" 
                 : "bg-red-100 text-red-700"
             }`}>
-              {row.getValue("Status") ? "Active" : "Inactive"}
+              {row.getValue("status") ? "Active" : "Inactive"}
             </span>
           </div>
         ),
       },
       {
-        accessorKey: "Description",
+        accessorKey: "description",
         header: "Description",
       },
       {
-        accessorKey: "CreatedAt",
+        accessorKey: "created_at",
         header: "Fecha Creado",
         cell: ({ row }) => {
-          const date = new Date(row.getValue("CreatedAt"));
+          const date = new Date(row.getValue("created_at"));
           return <div>{date.toLocaleDateString('es-ES', {
             day: 'numeric',
             month: 'long',
@@ -102,10 +102,10 @@ export function createColumns<TData extends { ID: string }>(type: 'role' | 'paym
         }
       },
       {
-        accessorKey: "UpdatedAt",
+        accessorKey: "updated_at",
         header: "Fecha Actualizado",
         cell: ({ row }) => {
-          const date = new Date(row.getValue("UpdatedAt"));
+          const date = new Date(row.getValue("updated_at"));
           return <div>{date.toLocaleDateString('es-ES', {
             day: 'numeric',
             month: 'long',
