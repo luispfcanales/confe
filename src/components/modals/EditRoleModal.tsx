@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
-import { Role } from "@/pages/admin/users/columns"
+import { Role } from "@/pages/admin/managment/columns"
 import { useEffect, useState } from "react"
 
 interface EditRoleModalProps {

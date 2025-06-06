@@ -2,14 +2,15 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from "./pages/home";
 import PublicationPage from "./pages/publications";
 import Register from "./pages/register/register";
+import UserRegistration from "./pages/user_registration/user_registration";
 import Login from "./pages/login";
 import AdminLayout from './components/admin/Layout';
 //import UsersPage from './pages/admin/users';
 import Dashboard from './pages/admin/dashboard/dashboard';
-import RolesPage from './pages/admin/users/roles';
-import AdministratorsPage from './pages/admin/users/administrators';
-import ResearchersPage from './pages/admin/users/researchers';
-import EvaluatorsPage from './pages/admin/users/evaluators';
+import RolesPage from './pages/admin/managment/roles/';
+import AdministratorsPage from './pages/admin/managment/administrators';
+import ResearchersPage from './pages/admin/managment/researchers';
+import EvaluatorsPage from './pages/admin/managment/evaluators';
 import PostersPage from './pages/admin/posters';
 import PosterEditorPage from './pages/admin/poster-editor';
 import NewEditor from './pages/admin/new-editor';
@@ -31,6 +32,7 @@ function App(): JSX.Element {
         <Route path="/" element={<Home />} />
         <Route path="/publications" element={<PublicationPage />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/user-registration" element={<UserRegistration />} />
         <Route path="/login" element={<Login />} />
         
         {/* Rutas protegidas del administrador */}

@@ -75,11 +75,11 @@ const Home = (): JSX.Element => {
                 Ingresar
               </Button>
               <Button 
-                className="w-full h-11 text-base font-medium hover:bg-gray-100"
+                className="w-full h-11 text-base font-medium hover:bg-gray-100 animate-pulse border-2 border-primary"
                 variant="outline"
-                onClick={() => navigate('/register')}
+                onClick={() => navigate('/user-registration')}
               >
-                Registrarse
+                Crear cuenta
               </Button>
             </CardContent>
           </Card>
