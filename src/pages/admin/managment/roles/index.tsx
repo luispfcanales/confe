@@ -4,8 +4,8 @@ import { toast } from "sonner";
 import { useEffect, useState } from 'react';
 import { EditRoleModal } from "./components/EditRoleModal";
 import { Role } from "./types";
-import { createColumns } from "./columns";
-import { DataTable } from "./data-table";
+import { createColumns } from "../columns";
+import { DataTable } from "../data-table";
 import { RoleService } from './services/roleService';
 
 const LoadingSpinner = () => (

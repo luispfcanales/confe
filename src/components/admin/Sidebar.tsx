@@ -7,9 +7,7 @@ import {
   LogOut,
   Settings,
   Shield,
-  UserCog,
-  GraduationCap,
-  ClipboardCheck
+  MonitorCog
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -24,30 +22,30 @@ const Sidebar = () => {
       icon: LayoutDashboard
     },
     {
-      path: '/admin/users',
-      name: 'Gestión de Usuarios',
-      icon: Users,
+      path: '/admin/system',
+      name: 'Gestión del Sistema',
+      icon: MonitorCog,
       submenu: [
         {
-          path: '/admin/users/roles',
+          path: '/admin/system/roles',
           name: 'Roles',
           icon: Shield
         },
         {
-          path: '/admin/users/administrators',
-          name: 'Administradores',
-          icon: UserCog
-        },
-        {
-          path: '/admin/users/researchers',
-          name: 'Investigadores',
-          icon: GraduationCap
-        },
-        {
-          path: '/admin/users/evaluators',
-          name: 'Evaluadores',
-          icon: ClipboardCheck
+          path: '/admin/system/users',
+          name: 'Usuarios',
+          icon: Users
         }
+        // {
+        //   path: '/admin/users/researchers',
+        //   name: 'Investigadores',
+        //   icon: GraduationCap
+        // },
+        // {
+        //   path: '/admin/users/evaluators',
+        //   name: 'Evaluadores',
+        //   icon: ClipboardCheck
+        // }
       ]
     },
     {

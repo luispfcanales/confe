@@ -5,12 +5,9 @@ import Register from "./pages/register/register";
 import UserRegistration from "./pages/user_registration/user_registration";
 import Login from "./pages/login";
 import AdminLayout from './components/admin/Layout';
-//import UsersPage from './pages/admin/users';
 import Dashboard from './pages/admin/dashboard/dashboard';
 import RolesPage from './pages/admin/managment/roles/';
-import AdministratorsPage from './pages/admin/managment/administrators';
-import ResearchersPage from './pages/admin/managment/researchers';
-import EvaluatorsPage from './pages/admin/managment/evaluators';
+import UsersPage from './pages/admin/managment/users';
 import PostersPage from './pages/admin/posters';
 import PosterEditorPage from './pages/admin/poster-editor';
 import NewEditor from './pages/admin/new-editor';
@@ -43,10 +40,10 @@ function App(): JSX.Element {
         }>
           <Route path="dashboard" element={<Dashboard/>} />
           {/* <Route path="users" element={<UsersPage />} /> */}
-          <Route path="users/roles" element={<RolesPage />} />
-          <Route path="users/administrators" element={<AdministratorsPage />} />
-          <Route path="users/researchers" element={<ResearchersPage />} />
-          <Route path="users/evaluators" element={<EvaluatorsPage />} />
+          <Route path="system/roles" element={<RolesPage />} />
+          <Route path="system/users" element={<UsersPage />} />
+          {/* <Route path="users/researchers" element={<ResearchersPage />} />
+          <Route path="users/evaluators" element={<EvaluatorsPage />} /> */}
           <Route path="posters" element={<PostersPage/>} />
           <Route path="posters/new" element={<PosterEditorPage />} />
           <Route path="posters/A4-new" element={<NewEditor />} />

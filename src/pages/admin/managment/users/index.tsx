@@ -1,0 +1,368 @@
+// UsersPage.tsx
+import { PlusCircle, Users, Filter } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from "sonner";
+import { useEffect, useState } from 'react';
+import { EditUserModal } from "./components/EditUserModal";
+import { User, UserType } from "./types";
+import { createColumns } from "../columns";
+import { DataTable } from "../data-table";
+import { UserService } from './services/userService';
+
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center h-64">
+    <div className="flex flex-col items-center space-y-4">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <p className="text-sm text-gray-600">Cargando usuarios...</p>
+    </div>
+  </div>
+);
+
+const UsersContent = () => {
+  const [data, setData] = useState<User[]>([]);
+  const [allData, setAllData] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [userTypeFilter, setUserTypeFilter] = useState<UserType>(UserType.ALL);
+
+  const fetchUsers = async () => {
+    try {
+      setIsLoading(true);
+      const users = await UserService.getAllUsers();
+      console.log(users);
+      setAllData(users);
+      filterUsers(users, userTypeFilter);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Error al cargar usuarios', {
+        description: 'No se pudieron obtener los usuarios del sistema',
+        action: { label: 'Cerrar', onClick: () => toast.dismiss() },
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filterUsers = (users: User[], filter: UserType) => {
+    let filteredUsers = users;
+
+    switch (filter) {
+      case UserType.INTERNAL:
+        filteredUsers = users.filter(user => user.is_internal);
+        break;
+      case UserType.EXTERNAL:
+        filteredUsers = users.filter(user => !user.is_internal);
+        break;
+      case UserType.ACTIVE:
+        filteredUsers = users.filter(user => user.is_active);
+        break;
+      case UserType.INACTIVE:
+        filteredUsers = users.filter(user => !user.is_active);
+        break;
+      default:
+        filteredUsers = users;
+        break;
+    }
+
+    setData(filteredUsers);
+  };
+
+  const handleUserTypeChange = (type: UserType) => {
+    setUserTypeFilter(type);
+    filterUsers(allData, type);
+  };
+
+  const handleDelete = async (user: User) => {
+    try {
+      const loadingToastId = toast.loading('Eliminando usuario...');
+      
+      await UserService.deleteUser(user.ID!);
+  
+      toast.dismiss(loadingToastId);
+      toast.success('Usuario eliminado exitosamente', {
+        description: `El usuario "${user.first_name} ${user.last_name}" se ha eliminado correctamente.`,
+        action: { label: 'Cerrar', onClick: () => toast.dismiss() },
+        duration: 5000,
+      });
+      
+      await fetchUsers();
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Error al eliminar usuario', {
+        description: `No se pudo eliminar el usuario "${user.first_name} ${user.last_name}".`,
+        action: { label: 'Cerrar', onClick: () => toast.dismiss() },
+      });
+      console.error('Error deleting user:', error);
+    }
+  };
+
+  const handleEdit = (user: User) => {
+    setSelectedUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCreateNew = () => {
+    setSelectedUser(null);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleToggleStatus = async (user: User) => {
+    try {
+      const loadingToastId = toast.loading(
+        user.is_active ? 'Desactivando usuario...' : 'Activando usuario...'
+      );
+      
+      await UserService.toggleUserStatus(user.ID!, !user.is_active);
+
+      toast.dismiss(loadingToastId);
+      toast.success(
+        user.is_active ? 'Usuario desactivado' : 'Usuario activado',
+        {
+          description: `El usuario "${user.first_name} ${user.last_name}" ha sido ${
+            user.is_active ? 'desactivado' : 'activado'
+          }.`,
+          action: { label: 'Cerrar', onClick: () => toast.dismiss() },
+          duration: 5000,
+        }
+      );
+      
+      await fetchUsers();
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Error al cambiar estado del usuario', {
+        description: `No se pudo cambiar el estado del usuario "${user.first_name} ${user.last_name}".`,
+        action: { label: 'Cerrar', onClick: () => toast.dismiss() },
+      });
+      console.error('Error toggling user status:', error);
+    }
+  };
+
+  const columns = createColumns<User>('user', handleEdit, handleDelete, handleToggleStatus);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleCreate = async (newUser: User) => {
+    try {
+      const loadingToastId = toast.loading('Creando nuevo usuario...');
+      
+      const createdUser = await UserService.createUser({
+        RoleID: newUser.role_id,
+        DocumentTypeID: newUser.document_type_id,
+        FirstName: newUser.first_name,
+        LastName: newUser.last_name,
+        IdentityDocument: newUser.identity_document,
+        Address: newUser.address,
+        Email: newUser.email,
+        Sex: newUser.sex,
+        Password: newUser.password!,
+        IsActive: newUser.is_active,
+        IsInternal: newUser.is_internal
+      });
+
+      toast.dismiss(loadingToastId);
+      toast.success('Usuario creado exitosamente', {
+        description: `El usuario "${createdUser.first_name} ${createdUser.last_name}" fue creado.`,
+        action: { label: 'Cerrar', onClick: () => toast.dismiss() },
+        duration: 5000,
+      });
+      
+      setIsCreateModalOpen(false);
+      await fetchUsers();
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Error al crear usuario', {
+        description: 'No se pudo crear el nuevo usuario.',
+        action: { label: 'Cerrar', onClick: () => toast.dismiss() },
+      });
+      console.error('Error creating user:', error);
+    }
+  };
+
+  const handleSave = async (updatedUser: User) => {
+    if (!updatedUser.ID) return;
+
+    try {
+      const loadingToastId = toast.loading('Actualizando usuario...');
+      
+      const updateData: any = {
+        RoleID: updatedUser.role_id,
+        DocumentTypeID: updatedUser.document_type_id,
+        FirstName: updatedUser.first_name,
+        LastName: updatedUser.last_name,
+        IdentityDocument: updatedUser.identity_document,
+        Address: updatedUser.address,
+        Email: updatedUser.email,
+        Sex: updatedUser.sex,
+        IsActive: updatedUser.is_active,
+        IsInternal: updatedUser.is_internal
+      };
+
+      // Solo incluir contraseña si se proporcionó
+      if (updatedUser.password && updatedUser.password.trim()) {
+        updateData.Password = updatedUser.password;
+      }
+
+      const updated = await UserService.updateUser(updatedUser.ID, updateData);
+
+      toast.dismiss(loadingToastId);
+      toast.success('Usuario actualizado', {
+        description: `El usuario "${updated.first_name} ${updated.last_name}" se ha actualizado.`,
+        action: { label: 'Cerrar', onClick: () => toast.dismiss() },
+        duration: 5000,
+      });
+      
+      setIsEditModalOpen(false);
+      await fetchUsers();
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Error al actualizar usuario', {
+        description: `No se pudo actualizar el usuario "${updatedUser.first_name} ${updatedUser.last_name}".`,
+        action: { label: 'Cerrar', onClick: () => toast.dismiss() },
+      });
+      console.error('Error updating user:', error);
+    }
+  };
+
+  const getUserTypeLabel = (type: UserType) => {
+    switch (type) {
+      case UserType.ALL: return 'Todos los usuarios';
+      case UserType.INTERNAL: return 'Usuarios internos';
+      case UserType.EXTERNAL: return 'Usuarios externos';
+      case UserType.ACTIVE: return 'Usuarios activos';
+      case UserType.INACTIVE: return 'Usuarios inactivos';
+      default: return 'Todos los usuarios';
+    }
+  };
+
+  const getFilteredCount = () => {
+    return data.length;
+  };
+
+  const getFilteredDescription = () => {
+    const count = getFilteredCount();
+    const total = allData.length;
+    
+    if (userTypeFilter === UserType.ALL) {
+      return `${count} ${count === 1 ? 'usuario encontrado' : 'usuarios encontrados'}`;
+    }
+    
+    return `${count} de ${total} usuarios (${getUserTypeLabel(userTypeFilter).toLowerCase()})`;
+  };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50/50">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
+              <p className="text-gray-600 mt-1">Administra los usuarios del sistema</p>
+            </div>
+            <Button 
+              onClick={handleCreateNew} 
+              className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 gap-2"
+            >
+              <PlusCircle className="h-4 w-4" />
+              Agregar Usuario
+            </Button>
+          </div>
+        </div>
+
+        {/* Filtros */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">Filtrar por:</span>
+              </div>
+              <Select value={userTypeFilter} onValueChange={(value) => handleUserTypeChange(value as UserType)}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={UserType.ALL}>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      Todos los usuarios
+                    </div>
+                  </SelectItem>
+                  <SelectItem value={UserType.INTERNAL}>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-blue-600" />
+                      Usuarios internos
+                    </div>
+                  </SelectItem>
+                  <SelectItem value={UserType.EXTERNAL}>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-green-600" />
+                      Usuarios externos
+                    </div>
+                  </SelectItem>
+                  <SelectItem value={UserType.ACTIVE}>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-emerald-600" />
+                      Usuarios activos
+                    </div>
+                  </SelectItem>
+                  <SelectItem value={UserType.INACTIVE}>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-red-600" />
+                      Usuarios inactivos
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <span>Mostrando:</span>
+              <span className="font-medium text-gray-900">{getUserTypeLabel(userTypeFilter)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Table Container */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">Lista de Usuarios</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {getFilteredDescription()}
+            </p>
+          </div>
+          <DataTable columns={columns} data={data} type="user"/>
+        </div>
+
+        {/* Modals */}
+        <EditUserModal
+          user={selectedUser}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={handleSave}
+        />
+        <EditUserModal
+          user={null}
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSave={handleCreate}
+        />
+      </div>
+    </div>
+  );
+};
+
+const UsersPage = () => {
+  return <UsersContent />;
+};
+
+export default UsersPage;
