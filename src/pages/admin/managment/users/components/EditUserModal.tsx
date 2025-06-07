@@ -177,7 +177,6 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
     switch (sex) {
       case 1: return 'Masculino';
       case 2: return 'Femenino';
-      case 3: return 'Otro';
       default: return 'Masculino';
     }
   };

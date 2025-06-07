@@ -14,8 +14,8 @@ export interface User {
   is_internal: boolean;
   created_at?: string;
   updated_at?: string;
-  role?: Role;  // Agrega esta propiedad para el objeto anidado
-  document_type?: DocumentType; // Opcional: si también viene en la respuesta
+  role: Role;  // Agrega esta propiedad para el objeto anidado
+  document_type: DocumentType; // Opcional: si también viene en la respuesta
 }
 
 export interface Role {
@@ -73,6 +73,5 @@ export interface DocumentType {
   
   export enum SexType {
     MALE = 1,
-    FEMALE = 2,
-    OTHER = 3
+    FEMALE = 2
   }

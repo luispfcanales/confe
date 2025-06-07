@@ -1,59 +1,55 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
-import { Role } from "../types"
+import { DocumentType } from "../types"
 import { useEffect, useState } from "react"
-import { User, FileText, Shield } from "lucide-react"
+import { FileText, File } from "lucide-react"
 
-interface EditRoleModalProps {
-  role: Role | null
+interface EditDocumentTypeModalProps {
+  documentType: DocumentType | null
   isOpen: boolean
   onClose: () => void
-  onSave: (updatedRole: Role) => void
+  onSave: (updatedDocumentType: DocumentType) => void
   title?: string
 }
 
-export function EditRoleModal({ 
-  role, 
+export function EditDocumentTypeModal({ 
+  documentType, 
   isOpen, 
   onClose, 
   onSave,
-  title = role ? `Editar Rol: ${role.name}` : 'Crear Nuevo Rol'
-}: EditRoleModalProps) {
-    const [status, setStatus] = useState<boolean>(role?.status || true)
-  const [description, setDescription] = useState(role?.description || "")
-  const [name, setName] = useState(role?.name || "")
+  title = documentType ? `Editar Tipo: ${documentType.name}` : 'Crear Nuevo Tipo de Documento'
+}: EditDocumentTypeModalProps) {
+  const [description, setDescription] = useState(documentType?.description || "")
+  const [name, setName] = useState(documentType?.name || "")
   const [errors, setErrors] = useState<{[key: string]: string}>({})
 
   useEffect(() => {
-    if (role) {
-      setStatus(role.status)
-      setDescription(role.description)
-      setName(role.name)
+    if (documentType) {
+      setDescription(documentType.description)
+      setName(documentType.name)
     } else {
-      setStatus(true)
       setDescription("")
       setName("")
     }
     setErrors({})
-  }, [role, isOpen])
+  }, [documentType, isOpen])
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {}
     
     if (!name.trim()) {
-      newErrors.name = "El nombre del rol es requerido"
-    } else if (name.length < 3) {
-      newErrors.name = "El nombre debe tener al menos 3 caracteres"
+      newErrors.name = "El nombre del tipo de documento es requerido"
+    } else if (name.length < 2) {
+      newErrors.name = "El nombre debe tener al menos 2 caracteres"
     }
     
     if (!description.trim()) {
       newErrors.description = "La descripción es requerida"
-    } else if (description.length < 10) {
-      newErrors.description = "La descripción debe tener al menos 10 caracteres"
+    } else if (description.length < 5) {
+      newErrors.description = "La descripción debe tener al menos 5 caracteres"
     }
 
     setErrors(newErrors)
@@ -66,20 +62,19 @@ export function EditRoleModal({
     }
 
     const now = new Date().toISOString()
-    const updatedRole: Role = {
-      ...(role || {
+    const updatedDocumentType: DocumentType = {
+      ...(documentType || {
         ID: '',
         created_at: now,
         updated_at: now,
         deleted_at: null
       }),
       name: name.trim(),
-      status: status,
       description: description.trim(),
       updated_at: now
     }
 
-    onSave(updatedRole)
+    onSave(updatedDocumentType)
     onClose()
   }
 
@@ -87,11 +82,11 @@ export function EditRoleModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px] p-0">
         {/* Header with gradient */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 text-white">
           <DialogHeader>
             <div className="flex items-center space-x-3">
               <div className="bg-white/20 p-2 rounded-lg">
-                <Shield className="h-5 w-5" />
+                <File className="h-5 w-5" />
               </div>
               <DialogTitle className="text-xl font-semibold">
                 {title}
@@ -102,19 +97,19 @@ export function EditRoleModal({
 
         {/* Content */}
         <div className="px-6 py-6 space-y-6">
-          {/* Nombre del rol */}
+          {/* Nombre del tipo */}
           <div className="space-y-2">
             <Label htmlFor="name" className="text-sm font-medium text-gray-700 flex items-center space-x-2">
-              <User className="h-4 w-4" />
-              <span>Nombre del Rol</span>
+              <FileText className="h-4 w-4" />
+              <span>Nombre del Tipo de Documento</span>
             </Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Ej: Administrador, Editor, Moderador..."
-              className={`${errors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'}`}
-              disabled={!!role?.ID} // Solo deshabilitar si es edición
+              placeholder="Ej: DNI, Pasaporte, Carnet de Extranjería..."
+              className={`${errors.name ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'}`}
+                disabled={!!documentType?.ID} // Solo deshabilitar si es edición
             />
             {errors.name && (
               <p className="text-sm text-red-600 flex items-center space-x-1">
@@ -122,29 +117,6 @@ export function EditRoleModal({
                 <span>{errors.name}</span>
               </p>
             )}
-          </div>
-
-          {/* Estado */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
-            <div className="flex items-center space-x-3">
-              <div className={`p-2 rounded-lg ${status ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                <Shield className="h-4 w-4" />
-              </div>
-              <div>
-                <Label htmlFor="status" className="text-sm font-medium text-gray-700">
-                  Estado del Rol
-                </Label>
-                <p className="text-xs text-gray-500">
-                  {status ? 'El rol está activo y disponible' : 'El rol está desactivado'}
-                </p>
-              </div>
-            </div>
-            <Switch
-              id="status"
-              checked={status}
-              onCheckedChange={setStatus}
-              className="data-[state=checked]:bg-green-600"
-            />
           </div>
 
           {/* Descripción */}
@@ -157,9 +129,9 @@ export function EditRoleModal({
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe las responsabilidades y permisos de este rol..."
+              placeholder="Describe las características y uso de este tipo de documento..."
               rows={4}
-              className={`resize-none ${errors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'}`}
+              className={`resize-none ${errors.description ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'}`}
             />
             {errors.description && (
               <p className="text-sm text-red-600 flex items-center space-x-1">
@@ -168,6 +140,21 @@ export function EditRoleModal({
               </p>
             )}
           </div>
+
+          {/* Info adicional */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start space-x-3">
+              <div className="bg-blue-100 p-1 rounded">
+                <FileText className="h-4 w-4 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-blue-900">Información</h4>
+                <p className="text-sm text-blue-700 mt-1">
+                  Los tipos de documento se utilizan para categorizar los documentos de identidad de los usuarios en el sistema.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
@@ -175,7 +162,7 @@ export function EditRoleModal({
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button onClick={handleSave}>
+          <Button onClick={handleSave} className="bg-indigo-600 hover:bg-indigo-700">
             Guardar
           </Button>
         </DialogFooter>

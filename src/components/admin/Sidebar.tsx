@@ -7,7 +7,11 @@ import {
   LogOut,
   Settings,
   Shield,
-  MonitorCog
+  MonitorCog,
+  Microscope,
+  GraduationCap,
+  IdCard,
+  Images
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -28,30 +32,40 @@ const Sidebar = () => {
       submenu: [
         {
           path: '/admin/system/roles',
-          name: 'Roles',
+          name: 'Roles del sistema',
           icon: Shield
+        },
+        {
+          path: '/admin/system/investigator-types',
+          name: 'Tipos de investigadores',
+          icon: Microscope
+        },
+        {
+          path: '/admin/system/academic-grades',
+          name: 'Grados academicos',
+          icon: GraduationCap
+        },
+        {
+          path: '/admin/system/document-types',
+          name: 'Documentos identidad',
+          icon: IdCard
         },
         {
           path: '/admin/system/users',
           name: 'Usuarios',
           icon: Users
-        }
-        // {
-        //   path: '/admin/users/researchers',
-        //   name: 'Investigadores',
-        //   icon: GraduationCap
-        // },
-        // {
-        //   path: '/admin/users/evaluators',
-        //   name: 'Evaluadores',
-        //   icon: ClipboardCheck
-        // }
+        },
       ]
     },
     {
       path: '/admin/posters',
       name: 'Posters Científicos',
       icon: FileImage
+    },
+    {
+      path: '/admin/test',
+      name: 'Galeria de eventos',
+      icon: Images
     },
     {
       path: '/admin/settings',

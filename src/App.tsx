@@ -7,6 +7,9 @@ import Login from "./pages/login";
 import AdminLayout from './components/admin/Layout';
 import Dashboard from './pages/admin/dashboard/dashboard';
 import RolesPage from './pages/admin/managment/roles/';
+import InvestigatorTypePage from './pages/admin/managment/investigator_types';
+import DocumentTypesPage from './pages/admin/managment/document_types';
+import AcademicGradesPage from './pages/admin/managment/academic_grades';
 import UsersPage from './pages/admin/managment/users';
 import PostersPage from './pages/admin/posters';
 import PosterEditorPage from './pages/admin/poster-editor';
@@ -42,6 +45,9 @@ function App(): JSX.Element {
           {/* <Route path="users" element={<UsersPage />} /> */}
           <Route path="system/roles" element={<RolesPage />} />
           <Route path="system/users" element={<UsersPage />} />
+          <Route path="system/investigator-types" element={<InvestigatorTypePage />} />
+          <Route path="system/document-types" element={<DocumentTypesPage />} />
+          <Route path="system/academic-grades" element={<AcademicGradesPage />} />
           {/* <Route path="users/researchers" element={<ResearchersPage />} />
           <Route path="users/evaluators" element={<EvaluatorsPage />} /> */}
           <Route path="posters" element={<PostersPage/>} />

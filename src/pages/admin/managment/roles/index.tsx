@@ -177,7 +177,7 @@ const RolesContent = () => {
               {data.length} {data.length === 1 ? 'rol encontrado' : 'roles encontrados'}
             </p>
           </div>
-          <DataTable columns={columns} data={data} />
+          <DataTable columns={columns} data={data} type="role"/>
         </div>
 
         {/* Modals */}

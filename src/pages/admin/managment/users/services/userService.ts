@@ -147,7 +147,7 @@ export const UserService = {
 
   // Obtener todos los roles
   getAllRoles: async (): Promise<Role[]> => {
-    const response = await fetch(`${API_BASE_URL}/roles`, {
+    const response = await fetch(`${API_BASE_URL}/api/roles`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -158,12 +158,14 @@ export const UserService = {
       throw new Error(`Error fetching roles: ${response.statusText}`);
     }
 
-    return response.json();
+    const res = await response.json();
+
+    return res.data;
   },
 
   // Obtener todos los tipos de documento
   getAllDocumentTypes: async (): Promise<DocumentType[]> => {
-    const response = await fetch(`${API_BASE_URL}/document-types`, {
+    const response = await fetch(`${API_BASE_URL}/api/document-types`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -174,7 +176,9 @@ export const UserService = {
       throw new Error(`Error fetching document types: ${response.statusText}`);
     }
 
-    return response.json();
+    const res = await response.json();
+
+    return res.data;
   },
 
   // Resetear contraseña de usuario
