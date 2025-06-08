@@ -1,16 +1,17 @@
 import { API_URL } from '@/constants/api';
-import { 
-  InvestigatorType, 
-  CreateInvestigatorTypeRequest, 
-  UpdateInvestigatorTypeRequest, 
-  InvestigatorTypeApiResponse, 
-  SingleInvestigatorTypeApiResponse 
+import {
+  InvestigatorType,
+  CreateInvestigatorTypeRequest,
+  UpdateInvestigatorTypeRequest,
+  InvestigatorTypeApiResponse,
+  SingleInvestigatorTypeApiResponse
 } from '../types';
 
 export class InvestigatorTypeService {
   private static baseUrl = `${API_URL}/api/investigator-types`;
 
   static async getAllInvestigatorTypes(): Promise<InvestigatorType[]> {
+    console.log(this.baseUrl)
     try {
       const response = await fetch(this.baseUrl);
       if (!response.ok) {

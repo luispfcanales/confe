@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff } from 'lucide-react'
 import { UserFormData, FormErrors } from '../types'
 
@@ -12,10 +11,10 @@ interface AccessConfigSectionProps {
   onInputChange: (field: keyof UserFormData, value: any) => void
 }
 
-const AccessConfigSection = ({ 
-  formData, 
-  errors, 
-  onInputChange 
+const AccessConfigSection = ({
+  formData,
+  errors,
+  onInputChange
 }: AccessConfigSectionProps) => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -25,7 +24,7 @@ const AccessConfigSection = ({
       <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">
         Configuración de Acceso
       </h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="password">Contraseña *</Label>
@@ -74,17 +73,6 @@ const AccessConfigSection = ({
             <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
           )}
         </div>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="isActive"
-          checked={formData.isActive}
-          onCheckedChange={(checked) => onInputChange('isActive', checked)}
-        />
-        <Label htmlFor="isActive" className="text-sm">
-          Usuario activo (puede iniciar sesión)
-        </Label>
       </div>
     </div>
   )

@@ -43,8 +43,8 @@ const Register = () => {
       // const response = await fetch(`${API_URL}/api/roles`);
       const endpoint = isInternal
         ? userType === 'student'
-          ? `${API_URL}/api/data/student/${username}`
-          : `${API_URL}/api/data/teacher/${username}`
+          ? `${API_URL}/api/persons/dni/${username}`
+          : `${API_URL}/api/persons/dni/${username}`
         : null
 
       if (endpoint) {
@@ -115,7 +115,7 @@ const Register = () => {
             </div>
 
             {isInternal && (
-              <div className="flex gap-4">
+              <form className="flex gap-4">
                 <div className="flex-1">
                   <Label htmlFor="username">Código {userType === 'student' ? 'Estudiante' : 'Docente'}</Label>
                   <Input
@@ -127,8 +127,10 @@ const Register = () => {
                 </div>
                 <div className="flex items-end">
                   <Button
+                    type='submit'
                     onClick={fetchUserData}
                     disabled={loading || !username}
+                    className='bg-blue-500 hover:bg-blue-400'
                   >
                     {loading ? (
                       <>
@@ -140,7 +142,7 @@ const Register = () => {
                     )}
                   </Button>
                 </div>
-              </div>
+              </form>
             )}
 
 

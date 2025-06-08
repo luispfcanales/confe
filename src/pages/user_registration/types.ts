@@ -1,23 +1,25 @@
 export interface DocumentType {
-    id: string
-    name: string
-  }
-  
-  export interface UserFormData {
-    documentTypeId: string
-    firstName: string
-    lastName: string
-    identityDocument: string
-    address: string
-    email: string
-    phoneNumber: string
-    sex: number
-    password: string
-    confirmPassword: string
-    isActive: boolean
-    isInternal: boolean
-  }
-  
+  ID: string
+  name: string
+}
+
+export interface UserFormData {
+  documentTypeId: string
+  firtsName: string
+  lastName: string
+  identityDocument: string
+  address: string
+  email: string
+  phoneNumber: string
+  sex: number
+  password: string
+  confirmPassword: string
+  isActive: boolean
+  isInternal: boolean
+  id_investigator_types: string,
+  id_academic_grade: string
+}
+
 //   export interface FormErrors {
 //     documentTypeId?: string
 //     firstName?: string
@@ -30,5 +32,5 @@ export interface DocumentType {
 //     confirmPassword?: string
 //   }
 export type FormErrors = {
-    [key in keyof UserFormData]?: string
-  }
+  [key in keyof UserFormData]?: string
+}

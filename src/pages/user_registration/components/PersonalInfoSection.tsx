@@ -10,17 +10,17 @@ interface PersonalInfoSectionProps {
   onInputChange: (field: keyof UserFormData, value: any) => void
 }
 
-const PersonalInfoSection = ({ 
-  formData, 
-  errors, 
-  onInputChange 
+const PersonalInfoSection = ({
+  formData,
+  errors,
+  onInputChange
 }: PersonalInfoSectionProps) => {
   return (
     <div className="space-y-6">
       <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">
         Información Personal
       </h3>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="identityDocument">Documento de Identidad *</Label>
@@ -57,16 +57,16 @@ const PersonalInfoSection = ({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="firstName">Nombres *</Label>
+          <Label htmlFor="firtsName">Nombres *</Label>
           <Input
-            id="firstName"
-            value={formData.firstName}
-            onChange={(e) => onInputChange('firstName', e.target.value)}
+            id="firtsName"
+            value={formData.firtsName}
+            onChange={(e) => onInputChange('firtsName', e.target.value)}
             placeholder="Ingrese sus nombres"
-            className={errors.firstName ? 'border-red-500' : ''}
+            className={errors.firtsName ? 'border-red-500' : ''}
           />
-          {errors.firstName && (
-            <p className="text-red-500 text-sm">{errors.firstName}</p>
+          {errors.firtsName && (
+            <p className="text-red-500 text-sm">{errors.firtsName}</p>
           )}
         </div>
 

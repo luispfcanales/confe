@@ -5,8 +5,8 @@ export const validateForm = (formData: UserFormData): FormErrors => {
   const errors: FormErrors = {}
 
   // Validación de campos requeridos
-  if (!formData.firstName.trim()) {
-    errors.firstName = 'Nombres es requerido'
+  if (!formData.firtsName.trim()) {
+    errors.firtsName = 'Nombres es requerido'
   }
 
   if (!formData.lastName.trim()) {
