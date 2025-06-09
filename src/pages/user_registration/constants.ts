@@ -21,7 +21,10 @@ export const INITIAL_FORM_DATA = {
   isActive: true,
   isInternal: true,
   id_investigator_types: '',
-  id_academic_grade: ''
+  id_academic_grade: '',
+  type_participation:  '',     
+	faculty: '',  
+	academic_department: '' 
 }
 
 export const PASSWORD_MIN_LENGTH = 6

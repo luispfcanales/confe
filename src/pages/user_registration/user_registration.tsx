@@ -54,7 +54,7 @@ const UserRegistration = () => {
       // Reset form
       setFormData(INITIAL_FORM_DATA)
       setErrors({})
-      
+      navigate('/login')
     } catch (error) {
       toast.error('Error al registrar usuario')
       console.error('Error:', error)

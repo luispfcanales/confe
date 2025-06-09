@@ -1,12 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { AcademicGrade, ACADEMIC_LEVELS } from "../types"
+import { AcademicGrade } from "../types"
 import { useEffect, useState } from "react"
-import { GraduationCap, BookOpen, School } from "lucide-react"
+import { GraduationCap, BookOpen } from "lucide-react"
 
 interface EditAcademicGradeModalProps {
   academicGrade: AcademicGrade | null

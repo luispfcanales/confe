@@ -11,13 +11,15 @@ import {
   Microscope,
   GraduationCap,
   IdCard,
-  Images
+  CalendarDays
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/components/auth/AuthContext'; // ✅ Importar el contexto
 
 const Sidebar = () => {
   const location = useLocation();
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const { user, logout } = useAuth(); // ✅ Usar el contexto
 
   const menuItems = [
     {
@@ -58,14 +60,14 @@ const Sidebar = () => {
       ]
     },
     {
+      path: '/admin/scientific-events',
+      name: 'Eventos',
+      icon: CalendarDays
+    },
+    {
       path: '/admin/posters',
       name: 'Posters Científicos',
       icon: FileImage
-    },
-    {
-      path: '/admin/test',
-      name: 'Galeria de eventos',
-      icon: Images
     },
     {
       path: '/admin/settings',
@@ -74,9 +76,17 @@ const Sidebar = () => {
     }
   ];
 
-  const handleLogout = () => {
-    localStorage.removeItem('userRole');
-    window.location.href = '/';
+  // ✅ Función corregida que usa el contexto
+  const handleLogout = async () => {
+    try {
+      console.log('🚪 Sidebar logout initiated');
+      await logout(); // Usar la función del contexto
+    } catch (error) {
+      console.error('❌ Sidebar logout error:', error);
+      // Fallback
+      localStorage.clear();
+      window.location.href = '/login';
+    }
   };
 
   const toggleSubmenu = (path: string) => {
@@ -135,7 +145,7 @@ const Sidebar = () => {
                     <span className="text-sm font-medium">{item.name}</span>
                   </Link>
                 )}
-                {/* Submenu rendering remains the same */}
+                {/* Submenu */}
                 {item.submenu && isOpen && (
                   <ul className="ml-9 mt-2 space-y-1">
                     {item.submenu.map((subitem) => (
@@ -168,14 +178,22 @@ const Sidebar = () => {
             <Users className="h-5 w-5 text-slate-300" />
           </div>
           <div>
-            <p className="text-sm font-medium">Administrador</p>
-            <p className="text-xs text-slate-400">admin@ejemplo.com</p>
+            {/* ✅ Mostrar datos reales del usuario */}
+            <p className="text-sm font-medium">
+              {user ? `${user.first_name} ${user.last_name}` : 'Usuario'}
+            </p>
+            <p className="text-xs text-slate-400">
+              {user?.email || 'email@ejemplo.com'}
+            </p>
+            <p className="text-xs text-slate-500">
+              {user?.role?.name || 'Rol'}
+            </p>
           </div>
         </div>
         <Button 
           variant="destructive" 
           className="w-full flex items-center gap-2 justify-center"
-          onClick={handleLogout}
+          onClick={handleLogout} // ✅ Usar la función corregida
         >
           <LogOut className="h-4 w-4" />
           <span>Cerrar Sesión</span>

@@ -17,7 +17,10 @@ export interface UserFormData {
   isActive: boolean
   isInternal: boolean
   id_investigator_types: string,
-  id_academic_grade: string
+  id_academic_grade: string,
+  type_participation:  string,     
+	faculty: string,  
+	academic_department: string 
 }
 
 //   export interface FormErrors {

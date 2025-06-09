@@ -19,7 +19,9 @@ export const registerUser = async (formData: UserFormData): Promise<void> => {
     is_internal: formData.isInternal,
     investigator_type_id: formData.id_investigator_types,
     academic_grade_id: formData.id_academic_grade,
-
+    type_participation: formData.type_participation,
+    academic_departament: formData.academic_department,
+    faculty: formData.faculty,
   }
 
   // Aquí harías la llamada real a tu API
