@@ -17,7 +17,7 @@ const Home = (): JSX.Element => {
       </div>
 
       {/* Event Registration Banner */}
-      <div className="absolute top-4 left-0 right-0 mx-auto max-w-2xl">
+      {/* <div className="absolute top-4 left-0 right-0 mx-auto max-w-2xl">
         <div className="bg-primary/90 backdrop-blur-sm text-white px-6 py-3 rounded-lg shadow-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="animate-pulse h-3 w-3 bg-white rounded-full"></span>
@@ -32,7 +32,7 @@ const Home = (): JSX.Element => {
             Registrarse ahora
           </Button>
         </div>
-      </div>
+      </div> */}
 
       <div className="container max-w-4xl mx-auto relative z-10">
         <div className="text-center mb-12">

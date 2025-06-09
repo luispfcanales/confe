@@ -1,4 +1,4 @@
-// src/hooks/useAuthRedirect.ts - Actualizado para el nuevo sistema
+// src/hooks/useAuthRedirect.ts - Actualizado para el nuevo sistema con rutas de investigador
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthContext';
@@ -52,7 +52,7 @@ export const useAuthRedirect = (options: UseAuthRedirectOptions = {}) => {
   };
 };
 
-// Hook específico para redirección después del login
+// Hook específico para redirección después del login - ACTUALIZADO
 export const useLoginRedirect = () => {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -60,6 +60,9 @@ export const useLoginRedirect = () => {
   useEffect(() => {
     if (isAuthenticated && user) {
       const role = user.role.name as UserRole;
+      
+      console.log('🔄 Redirecting user with role:', role);
+      
       switch (role) {
         case 'ADMINISTRADOR':
           navigate('/admin/dashboard');
@@ -68,13 +71,30 @@ export const useLoginRedirect = () => {
           navigate('/reviewer/dashboard');
           break;
         case 'INVESTIGADOR':
-          navigate('/investigator');
+          navigate('/investigator/events'); // Redirección actualizada
           break;
         default:
+          console.warn('⚠️ Unknown role, redirecting to home');
           navigate('/');
       }
     }
   }, [isAuthenticated, user, navigate]);
 
   return { isAuthenticated, user };
+};
+
+// Hook específico para verificar acceso a rutas de investigador
+export const useInvestigatorAccess = () => {
+  const { user, isAuthenticated, hasRole } = useAuth();
+  
+  const hasInvestigatorAccess = hasRole('INVESTIGADOR');
+  const canAccessEvents = hasInvestigatorAccess;
+  
+  return {
+    isAuthenticated,
+    user,
+    hasInvestigatorAccess,
+    canAccessEvents,
+    userRole: user?.role.name as UserRole | undefined
+  };
 };
