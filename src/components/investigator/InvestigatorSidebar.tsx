@@ -1,10 +1,9 @@
 // src/components/investigator/InvestigatorSidebar.tsx
-import { useState } from 'react';
+// import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   CalendarDays,
   LogOut,
-  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthContext';

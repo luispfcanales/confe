@@ -1,7 +1,6 @@
 // src/components/auth/AuthDebug.tsx - Componente temporal para debugging
 import React from 'react';
 import { useAuth } from './AuthContext';
-import { AuthService } from '@/utils/authService';
 
 export const AuthDebug: React.FC = () => {
   const { user, isAuthenticated, loading, logout, hardReset } = useAuth();

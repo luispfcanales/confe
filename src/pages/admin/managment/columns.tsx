@@ -1,5 +1,3 @@
-//--------------------------------------------------------------------
-
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
@@ -177,7 +175,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       ...baseColumns,
       {
         accessorKey: "name",
-        header: ({ column }) => (
+        header: () => (
           <div className="flex items-center space-x-2">
             <span className="font-semibold">Nombre del Rol</span>
           </div>
@@ -198,7 +196,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "status",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Estado</span>
           </div>
@@ -227,7 +225,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "description",
-        header: ({ column }) => (
+        header: () => (
           <span className="font-semibold">Descripción</span>
         ),
         cell: ({ row }) => {
@@ -243,7 +241,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "created_at",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Fecha Creación</span>
           </div>
@@ -270,7 +268,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "updated_at",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Última Actualización</span>
           </div>
@@ -304,7 +302,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       ...baseColumns,
       {
         accessorKey: "name",
-        header: ({ column }) => (
+        header: () => (
           <div className="flex items-center space-x-2">
             <span className="font-semibold">Tipo de Investigador</span>
           </div>
@@ -325,7 +323,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "created_at",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Fecha Creación</span>
           </div>
@@ -352,7 +350,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "updated_at",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Última Actualización</span>
           </div>
@@ -379,7 +377,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "deleted_at",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Fecha Eliminación</span>
           </div>
@@ -413,7 +411,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       ...baseColumns,
       {
         accessorKey: "name",
-        header: ({ column }) => (
+        header: () => (
           <div className="flex items-center space-x-2">
             <span className="font-semibold">Grado Académico</span>
           </div>
@@ -434,7 +432,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "created_at",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Fecha Creación</span>
           </div>
@@ -461,7 +459,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "updated_at",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Última Actualización</span>
           </div>
@@ -488,7 +486,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "deleted_at",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Fecha Eliminación</span>
           </div>
@@ -522,7 +520,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       ...baseColumns,
       {
         accessorKey: "name",
-        header: ({ column }) => (
+        header: () => (
           <div className="flex items-center space-x-2">
             <span className="font-semibold">Tipo de Documento</span>
           </div>
@@ -543,7 +541,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "description",
-        header: ({ column }) => (
+        header: () => (
           <span className="font-semibold">Descripción</span>
         ),
         cell: ({ row }) => {
@@ -559,7 +557,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "created_at",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Fecha Creación</span>
           </div>
@@ -586,7 +584,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "updated_at",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Última Actualización</span>
           </div>
@@ -613,7 +611,7 @@ export function createColumns<TData extends User | Role | InvestigatorType | Doc
       },
       {
         accessorKey: "deleted_at",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-center">
             <span className="font-semibold">Fecha Eliminación</span>
           </div>

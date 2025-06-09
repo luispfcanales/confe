@@ -1,6 +1,6 @@
 // src/components/auth/AuthContext.tsx
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { AuthState, AuthAction, User, LoginCredentials, UserRole } from '@/types/auth';
+import { AuthState, AuthAction, LoginCredentials, UserRole } from '@/types/auth';
 import { AuthService } from '@/utils/authService';
 
 const initialState: AuthState = {
@@ -208,12 +208,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     // Esperar un tick y verificar
     setTimeout(() => {
-      const currentState = {
-        user: null,
-        loading: false,
-        error: null,
-        isAuthenticated: false,
-      };
+      // const currentState = {
+      //   user: null,
+      //   loading: false,
+      //   error: null,
+      //   isAuthenticated: false,
+      // };
       
       // Force update si es necesario
       dispatch({ type: 'LOGOUT' });

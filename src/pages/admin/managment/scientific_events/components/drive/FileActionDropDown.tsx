@@ -6,7 +6,6 @@ import {
   Download, 
   Trash2,
   Archive,
-  RotateCcw,
   AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -209,7 +208,7 @@ export const FileActionDropdown: React.FC<FileActionDropdownProps> = ({
   };
 
   const canDelete = permissions?.canDelete || permissions?.ownedByMe || false;
-  const canEdit = permissions?.canEdit || permissions?.ownedByMe || false;
+  //const canEdit = permissions?.canEdit || permissions?.ownedByMe || false;
 
   return (
     <>

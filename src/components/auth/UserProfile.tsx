@@ -2,35 +2,38 @@
 import React, { useState } from 'react';
 import { useAuth } from './AuthContext';
 import { roleUtils } from '@/utils/roleUtils';
-import { toast } from 'sonner';
+//import { toast } from 'sonner';
 
 export const UserProfile: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { 
+    user,
+    // logout,
+  } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   if (!user) return null;
 
-  const handleLogout = async () => {
-    try {
-      console.log('User clicked logout');
-      setIsDropdownOpen(false); // Cerrar dropdown inmediatamente
+  // const handleLogout = async () => {
+  //   try {
+  //     console.log('User clicked logout');
+  //     setIsDropdownOpen(false); // Cerrar dropdown inmediatamente
       
-      const loadingToast = toast.loading('Cerrando sesión...');
+  //     const loadingToast = toast.loading('Cerrando sesión...');
       
-      await logout();
+  //     await logout();
       
-      toast.success('Sesión cerrada exitosamente');
-      toast.dismiss(loadingToast);
+  //     toast.success('Sesión cerrada exitosamente');
+  //     toast.dismiss(loadingToast);
       
-    } catch (error) {
-      console.error('Error in handleLogout:', error);
-      toast.error('Error al cerrar sesión');
+  //   } catch (error) {
+  //     console.error('Error in handleLogout:', error);
+  //     toast.error('Error al cerrar sesión');
       
-      // Forzar limpieza manual si hay error
-      localStorage.clear();
-      window.location.href = '/login';
-    }
-  };
+  //     // Forzar limpieza manual si hay error
+  //     localStorage.clear();
+  //     window.location.href = '/login';
+  //   }
+  // };
 
   const handleClickOutside = () => {
     setIsDropdownOpen(false);

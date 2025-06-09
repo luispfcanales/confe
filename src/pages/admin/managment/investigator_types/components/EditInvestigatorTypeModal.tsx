@@ -1,12 +1,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { InvestigatorType } from "../types"
 import { useEffect, useState } from "react"
-import { Search, FileText, Shield } from "lucide-react"
+import { Search  } from "lucide-react"
 
 interface EditInvestigatorTypeModalProps {
   investigatorType: InvestigatorType | null

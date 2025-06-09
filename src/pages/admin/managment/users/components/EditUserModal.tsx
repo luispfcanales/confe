@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Eye, EyeOff, User as UserIcon, Mail, MapPin, IdCard } from 'lucide-react';
+import { Eye, EyeOff, User as UserIcon } from 'lucide-react';
 import { UserService } from '../services/userService';
 import { toast } from 'sonner';
 
@@ -170,14 +170,6 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
-
-  const getSexLabel = (sex: number) => {
-    switch (sex) {
-      case 1: return 'Masculino';
-      case 2: return 'Femenino';
-      default: return 'Masculino';
     }
   };
 
