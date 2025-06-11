@@ -1,11 +1,11 @@
-// // UsersPage.tsx
+// //index.tsx
 // import { PlusCircle, Users, Filter } from 'lucide-react';
 // import { Button } from '@/components/ui/button';
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 // import { toast } from "sonner";
 // import { useEffect, useState } from 'react';
 // import { EditUserModal } from "./components/EditUserModal";
-// import { User, UserType } from "./types";
+// import { User, Role } from "./types";
 // import { createColumns } from "../columns";
 // import { DataTable } from "../data-table";
 // import { UserService } from './services/userService';
@@ -19,14 +19,27 @@
 //   </div>
 // );
 
+// interface Filters {
+//   roleId: string;
+//   userType: string; // 'all' | 'internal' | 'external'
+//   status: string;   // 'all' | 'active' | 'inactive'
+// }
+
 // const UsersContent = () => {
 //   const [data, setData] = useState<User[]>([]);
 //   const [allData, setAllData] = useState<User[]>([]);
+//   const [roles, setRoles] = useState<Role[]>([]);
 //   const [isLoading, setIsLoading] = useState(true);
 //   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 //   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 //   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-//   const [userTypeFilter, setUserTypeFilter] = useState<UserType>(UserType.ALL);
+  
+//   // Estados para los filtros
+//   const [filters, setFilters] = useState<Filters>({
+//     roleId: 'all',
+//     userType: 'all',
+//     status: 'all'
+//   });
 
 //   const fetchUsers = async () => {
 //     try {
@@ -34,7 +47,7 @@
 //       const users = await UserService.getAllUsers();
 //       console.log(users);
 //       setAllData(users);
-//       filterUsers(users, userTypeFilter);
+//       applyFilters(users, filters);
 //     } catch (error) {
 //       console.error('Error fetching users:', error);
 //       toast.error('Error al cargar usuarios', {
@@ -46,33 +59,66 @@
 //     }
 //   };
 
-//   const filterUsers = (users: User[], filter: UserType) => {
-//     let filteredUsers = users;
+//   const fetchRoles = async () => {
+//     try {
+//       const rolesData = await UserService.getAllRoles();
+//       setRoles(rolesData);
+//     } catch (error) {
+//       console.error('Error fetching roles:', error);
+//       toast.error('Error al cargar roles', {
+//         description: 'No se pudieron obtener los roles del sistema',
+//         action: { label: 'Cerrar', onClick: () => toast.dismiss() },
+//       });
+//     }
+//   };
 
-//     switch (filter) {
-//       case UserType.INTERNAL:
-//         filteredUsers = users.filter(user => user.is_internal);
-//         break;
-//       case UserType.EXTERNAL:
-//         filteredUsers = users.filter(user => !user.is_internal);
-//         break;
-//       case UserType.ACTIVE:
-//         filteredUsers = users.filter(user => user.is_active);
-//         break;
-//       case UserType.INACTIVE:
-//         filteredUsers = users.filter(user => !user.is_active);
-//         break;
-//       default:
-//         filteredUsers = users;
-//         break;
+//   const applyFilters = (users: User[], currentFilters: Filters) => {
+//     let filteredUsers = [...users];
+
+//     // Filtro por rol
+//     if (currentFilters.roleId !== 'all') {
+//       filteredUsers = filteredUsers.filter(user => 
+//         user.role_id?.toString() === currentFilters.roleId
+//       );
+//     }
+
+//     // Filtro por tipo de usuario (interno/externo)
+//     if (currentFilters.userType !== 'all') {
+//       filteredUsers = filteredUsers.filter(user => {
+//         if (currentFilters.userType === 'internal') {
+//           return user.is_internal === true;
+//         } else if (currentFilters.userType === 'external') {
+//           return user.is_internal === false;
+//         }
+//         return true;
+//       });
+//     }
+
+//     // Filtro por estado (activo/inactivo)
+//     if (currentFilters.status !== 'all') {
+//       filteredUsers = filteredUsers.filter(user => {
+//         if (currentFilters.status === 'active') {
+//           return user.is_active === true;
+//         } else if (currentFilters.status === 'inactive') {
+//           return user.is_active === false;
+//         }
+//         return true;
+//       });
 //     }
 
 //     setData(filteredUsers);
 //   };
 
-//   const handleUserTypeChange = (type: UserType) => {
-//     setUserTypeFilter(type);
-//     filterUsers(allData, type);
+//   const handleFilterChange = (filterType: keyof Filters, value: string) => {
+//     const newFilters = { ...filters, [filterType]: value };
+//     setFilters(newFilters);
+//     applyFilters(allData, newFilters);
+//   };
+
+//   const clearAllFilters = () => {
+//     const resetFilters = { roleId: 'all', userType: 'all', status: 'all' };
+//     setFilters(resetFilters);
+//     applyFilters(allData, resetFilters);
 //   };
 
 //   const handleDelete = async (user: User) => {
@@ -144,6 +190,7 @@
 
 //   useEffect(() => {
 //     fetchUsers();
+//     fetchRoles();
 //   }, []);
 
 //   const handleCreate = async (newUser: User) => {
@@ -228,17 +275,6 @@
 //     }
 //   };
 
-//   const getUserTypeLabel = (type: UserType) => {
-//     switch (type) {
-//       case UserType.ALL: return 'Todos los usuarios';
-//       case UserType.INTERNAL: return 'Usuarios internos';
-//       case UserType.EXTERNAL: return 'Usuarios externos';
-//       case UserType.ACTIVE: return 'Usuarios activos';
-//       case UserType.INACTIVE: return 'Usuarios inactivos';
-//       default: return 'Todos los usuarios';
-//     }
-//   };
-
 //   const getFilteredCount = () => {
 //     return data.length;
 //   };
@@ -247,11 +283,18 @@
 //     const count = getFilteredCount();
 //     const total = allData.length;
     
-//     if (userTypeFilter === UserType.ALL) {
+//     const hasFilters = filters.roleId !== 'all' || filters.userType !== 'all' || filters.status !== 'all';
+    
+//     if (!hasFilters) {
 //       return `${count} ${count === 1 ? 'usuario encontrado' : 'usuarios encontrados'}`;
 //     }
     
-//     return `${count} de ${total} usuarios (${getUserTypeLabel(userTypeFilter).toLowerCase()})`;
+//     return `${count} de ${total} usuarios filtrados`;
+//   };
+
+//   const getRoleName = (roleId: string) => {
+//     const role = roles.find(r => r.ID?.toString() === roleId);
+//     return role ? role.name : 'Desconocido';
 //   };
 
 //   if (isLoading) {
@@ -280,54 +323,152 @@
 
 //         {/* Filtros */}
 //         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-//           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-//             <div className="flex items-center gap-4">
-//               <div className="flex items-center gap-2">
-//                 <Filter className="h-4 w-4 text-gray-500" />
-//                 <span className="text-sm font-medium text-gray-700">Filtrar por:</span>
-//               </div>
-//               <Select value={userTypeFilter} onValueChange={(value) => handleUserTypeChange(value as UserType)}>
-//                 <SelectTrigger className="w-48">
-//                   <SelectValue />
-//                 </SelectTrigger>
-//                 <SelectContent>
-//                   <SelectItem value={UserType.ALL}>
-//                     <div className="flex items-center gap-2">
-//                       <Users className="h-4 w-4" />
-//                       Todos los usuarios
-//                     </div>
-//                   </SelectItem>
-//                   <SelectItem value={UserType.INTERNAL}>
-//                     <div className="flex items-center gap-2">
-//                       <Users className="h-4 w-4 text-blue-600" />
-//                       Usuarios internos
-//                     </div>
-//                   </SelectItem>
-//                   <SelectItem value={UserType.EXTERNAL}>
-//                     <div className="flex items-center gap-2">
-//                       <Users className="h-4 w-4 text-green-600" />
-//                       Usuarios externos
-//                     </div>
-//                   </SelectItem>
-//                   <SelectItem value={UserType.ACTIVE}>
-//                     <div className="flex items-center gap-2">
-//                       <Users className="h-4 w-4 text-emerald-600" />
-//                       Usuarios activos
-//                     </div>
-//                   </SelectItem>
-//                   <SelectItem value={UserType.INACTIVE}>
-//                     <div className="flex items-center gap-2">
-//                       <Users className="h-4 w-4 text-red-600" />
-//                       Usuarios inactivos
-//                     </div>
-//                   </SelectItem>
-//                 </SelectContent>
-//               </Select>
+//           <div className="space-y-4">
+//             <div className="flex items-center gap-2">
+//               <Filter className="h-4 w-4 text-gray-500" />
+//               <span className="text-sm font-medium text-gray-700">Filtros:</span>
 //             </div>
             
-//             <div className="flex items-center gap-2 text-sm text-gray-600">
-//               <span>Mostrando:</span>
-//               <span className="font-medium text-gray-900">{getUserTypeLabel(userTypeFilter)}</span>
+//             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+//               {/* Filtro por Rol */}
+//               <div className="space-y-2">
+//                 <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+//                   Por Rol
+//                 </label>
+//                 <Select 
+//                   value={filters.roleId} 
+//                   onValueChange={(value) => handleFilterChange('roleId', value)}
+//                 >
+//                   <SelectTrigger className="w-full">
+//                     <SelectValue placeholder="Seleccionar rol" />
+//                   </SelectTrigger>
+//                   <SelectContent>
+//                     <SelectItem value="all">
+//                       <div className="flex items-center gap-2">
+//                         <Users className="h-4 w-4" />
+//                         Todos los roles
+//                       </div>
+//                     </SelectItem>
+//                     {roles.map((role) => (
+//                       <SelectItem key={role.ID} value={role.ID?.toString() || ''}>
+//                         <div className="flex items-center gap-2">
+//                           <Users className="h-4 w-4 text-purple-600" />
+//                           {role.name}
+//                         </div>
+//                       </SelectItem>
+//                     ))}
+//                   </SelectContent>
+//                 </Select>
+//               </div>
+
+//               {/* Filtro por Tipo de Usuario */}
+//               <div className="space-y-2">
+//                 <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+//                   Tipo de Usuario
+//                 </label>
+//                 <Select 
+//                   value={filters.userType} 
+//                   onValueChange={(value) => handleFilterChange('userType', value)}
+//                 >
+//                   <SelectTrigger className="w-full">
+//                     <SelectValue />
+//                   </SelectTrigger>
+//                   <SelectContent>
+//                     <SelectItem value="all">
+//                       <div className="flex items-center gap-2">
+//                         <Users className="h-4 w-4" />
+//                         Todos los tipos
+//                       </div>
+//                     </SelectItem>
+//                     <SelectItem value="internal">
+//                       <div className="flex items-center gap-2">
+//                         <Users className="h-4 w-4 text-blue-600" />
+//                         Usuarios internos
+//                       </div>
+//                     </SelectItem>
+//                     <SelectItem value="external">
+//                       <div className="flex items-center gap-2">
+//                         <Users className="h-4 w-4 text-green-600" />
+//                         Usuarios externos
+//                       </div>
+//                     </SelectItem>
+//                   </SelectContent>
+//                 </Select>
+//               </div>
+
+//               {/* Filtro por Estado */}
+//               <div className="space-y-2">
+//                 <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+//                   Estado
+//                 </label>
+//                 <Select 
+//                   value={filters.status} 
+//                   onValueChange={(value) => handleFilterChange('status', value)}
+//                 >
+//                   <SelectTrigger className="w-full">
+//                     <SelectValue />
+//                   </SelectTrigger>
+//                   <SelectContent>
+//                     <SelectItem value="all">
+//                       <div className="flex items-center gap-2">
+//                         <Users className="h-4 w-4" />
+//                         Todos los estados
+//                       </div>
+//                     </SelectItem>
+//                     <SelectItem value="active">
+//                       <div className="flex items-center gap-2">
+//                         <Users className="h-4 w-4 text-emerald-600" />
+//                         Usuarios activos
+//                       </div>
+//                     </SelectItem>
+//                     <SelectItem value="inactive">
+//                       <div className="flex items-center gap-2">
+//                         <Users className="h-4 w-4 text-red-600" />
+//                         Usuarios inactivos
+//                       </div>
+//                     </SelectItem>
+//                   </SelectContent>
+//                 </Select>
+//               </div>
+
+//               {/* Botón para limpiar filtros */}
+//               <div className="space-y-2">
+//                 <label className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+//                   Acciones
+//                 </label>
+//                 <Button 
+//                   variant="outline" 
+//                   onClick={clearAllFilters}
+//                   className="w-full"
+//                 >
+//                   Limpiar Filtros
+//                 </Button>
+//               </div>
+//             </div>
+
+//             {/* Información de filtros aplicados */}
+//             <div className="pt-4 border-t border-gray-200">
+//               <div className="flex flex-wrap gap-2 text-sm text-gray-600">
+//                 <span>Mostrando:</span>
+//                 <span className="font-medium text-gray-900">{getFilteredDescription()}</span>
+                
+//                 {/* Mostrar filtros activos */}
+//                 {filters.roleId !== 'all' && (
+//                   <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs">
+//                     Rol: {getRoleName(filters.roleId)}
+//                   </span>
+//                 )}
+//                 {filters.userType !== 'all' && (
+//                   <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+//                     Tipo: {filters.userType === 'internal' ? 'Interno' : 'Externo'}
+//                   </span>
+//                 )}
+//                 {filters.status !== 'all' && (
+//                   <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+//                     Estado: {filters.status === 'active' ? 'Activo' : 'Inactivo'}
+//                   </span>
+//                 )}
+//               </div>
 //             </div>
 //           </div>
 //         </div>
@@ -367,10 +508,7 @@
 
 // export default UsersPage;
 
-
-
-
-// UsersPage.tsx
+//index.tsx
 import { PlusCircle, Users, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -569,7 +707,8 @@ const UsersContent = () => {
     try {
       const loadingToastId = toast.loading('Creando nuevo usuario...');
       
-      const createdUser = await UserService.createUser({
+      // Crear objeto base para usuario
+      const createData: any = {
         RoleID: newUser.role_id,
         DocumentTypeID: newUser.document_type_id,
         FirstName: newUser.first_name,
@@ -581,7 +720,26 @@ const UsersContent = () => {
         Password: newUser.password!,
         IsActive: newUser.is_active,
         IsInternal: newUser.is_internal
-      });
+      };
+
+      // Agregar campos adicionales de investigador si existen
+      if (newUser.researcher_type_id) {
+        createData.ResearcherTypeID = newUser.researcher_type_id;
+      }
+      if (newUser.academic_grade_id) {
+        createData.AcademicGradeID = newUser.academic_grade_id;
+      }
+      if (newUser.participation_type_id) {
+        createData.ParticipationTypeID = newUser.participation_type_id;
+      }
+      if (newUser.faculty_id) {
+        createData.FacultyID = newUser.faculty_id;
+      }
+      if (newUser.academic_department_id) {
+        createData.AcademicDepartmentID = newUser.academic_department_id;
+      }
+
+      const createdUser = await UserService.createUser(createData);
 
       toast.dismiss(loadingToastId);
       toast.success('Usuario creado exitosamente', {
@@ -608,6 +766,7 @@ const UsersContent = () => {
     try {
       const loadingToastId = toast.loading('Actualizando usuario...');
       
+      // Crear objeto base para actualización
       const updateData: any = {
         RoleID: updatedUser.role_id,
         DocumentTypeID: updatedUser.document_type_id,
@@ -624,6 +783,23 @@ const UsersContent = () => {
       // Solo incluir contraseña si se proporcionó
       if (updatedUser.password && updatedUser.password.trim()) {
         updateData.Password = updatedUser.password;
+      }
+
+      // Agregar campos adicionales de investigador si existen
+      if (updatedUser.researcher_type_id) {
+        updateData.ResearcherTypeID = updatedUser.researcher_type_id;
+      }
+      if (updatedUser.academic_grade_id) {
+        updateData.AcademicGradeID = updatedUser.academic_grade_id;
+      }
+      if (updatedUser.participation_type_id) {
+        updateData.ParticipationTypeID = updatedUser.participation_type_id;
+      }
+      if (updatedUser.faculty_id) {
+        updateData.FacultyID = updatedUser.faculty_id;
+      }
+      if (updatedUser.academic_department_id) {
+        updateData.AcademicDepartmentID = updatedUser.academic_department_id;
       }
 
       const updated = await UserService.updateUser(updatedUser.ID, updateData);
