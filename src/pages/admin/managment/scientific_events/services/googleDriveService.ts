@@ -13,8 +13,9 @@ import {
     DeleteResult
   } from '../driveFiles';
   import { ScientificEvent } from '../types';
+import { API_URL } from '@/constants/api';
   
-  const API_BASE_URL = 'http://localhost:3000'; // Ajusta según tu configuración
+  const API_BASE_URL = API_URL;
   
   export class GoogleDriveService {
     private static baseUrl = `${API_BASE_URL}/api/drive`;

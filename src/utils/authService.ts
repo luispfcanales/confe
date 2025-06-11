@@ -1,12 +1,12 @@
 // src/utils/authService.ts
 import { AuthResponse, LoginCredentials, User, UserRole } from '@/types/auth';
-
-const API_BASE_URL = 'http://localhost:3000/api';
+import { API_URL } from '@/constants/api';
+const API_BASE_URL = API_URL;
 
 export class AuthService {
   static async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export class AuthService {
       // Si tienes un endpoint de logout en el backend
       const token = this.getToken();
       if (token) {
-        await fetch(`${API_BASE_URL}/auth/logout`, {
+        await fetch(`${API_BASE_URL}/api/auth/logout`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,

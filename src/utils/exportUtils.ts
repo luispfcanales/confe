@@ -1,5 +1,5 @@
 import { EditorState } from '@/types/editor';
-
+import { API_URL } from '@/constants/api';
 /**
  * Exports the current editor state as an SVG file
  * @param editorState The current state of the editor including all text boxes
@@ -9,7 +9,7 @@ export const exportAsSVG = async (editorState: EditorState): Promise<void> => {
   try {
     console.log('Estado del editor a enviar:', editorState);
     
-    const response = await fetch('http://localhost:3000/api/export/svg', {
+    const response = await fetch(`${API_URL}/api/export/svg`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -43,7 +43,7 @@ export const exportAsPDF = async (editorState: EditorState): Promise<void> => {
     try {
       console.log('Estado del editor a enviar:', JSON.stringify(editorState));
   
-      const response = await fetch('http://localhost:3000/api/export/pdf', {
+      const response = await fetch(`${API_URL}/api/export/pdf`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
