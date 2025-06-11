@@ -3,14 +3,13 @@ import { useEffect, useState } from 'react'
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { UserFormData, FormErrors } from '../types'
-
+import { UserFormData, FormErrors, DocumentType, Faculty, AcademicDepartment, InvestigatorType, AcademicGrade, ParticipationType } from '../types'
 import { API_URL } from '@/constants/api'
+import { API_ENDPOINTS } from '../constants'
 
 interface UserConfigSectionProps {
   formData: UserFormData
   errors: FormErrors
-  //documentTypes: DocumentType[]
   onInputChange: (field: keyof UserFormData, value: any) => void
 }
 
@@ -19,54 +18,117 @@ const UserConfigSection = ({
   errors,
   onInputChange
 }: UserConfigSectionProps) => {
-  const [documentTypes, setDocumentTypes] = useState<any[]>([])
-  const [investigatorType, setInvestigatorType] = useState<any[]>([])
-  const [participantType, setParticipantType] = useState<any[]>([])
-  const [acaDepartament, setAcaDepartament] = useState<any[]>([])
-  const [faculty, setFaculty] = useState<any[]>([])
-  const [grade, setGrade] = useState<any[]>([])
+  // Estados para los datos de los selects
+  const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([])
+  const [investigatorTypes, setInvestigatorTypes] = useState<InvestigatorType[]>([])
+  const [participationTypes, setParticipationTypes] = useState<ParticipationType[]>([])
+  const [departments, setDepartments] = useState<AcademicDepartment[]>([])
+  const [faculties, setFaculties] = useState<Faculty[]>([])
+  const [academicGrades, setAcademicGrades] = useState<AcademicGrade[]>([])
 
+  // Estados de carga y error
   const [loading, setLoading] = useState(true)
+  const [loadingDepartments, setLoadingDepartments] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Cargar datos iniciales
   useEffect(() => {
-    const fetchDocumentTypes = async () => {
+    const fetchInitialData = async () => {
       try {
         setLoading(true)
-        const response = await fetch(`${API_URL}/api/document-types/all`);
-        const responseInvestigator = await fetch(`${API_URL}/api/investigator-types`);
-        const responseGrade = await fetch(`${API_URL}/api/academic-grades`);
-        const respDeparts = await fetch(`${API_URL}/api/general/departments`);
-        const respFacult = await fetch(`${API_URL}/api/general/faculties`);
-        const respParTypes = await fetch(`${API_URL}/api/general/participation-types`);
+        setError(null)
 
-        if (!response.ok || !responseInvestigator || !responseGrade) {
-          throw new Error('Error al obtener los datos')
+        const [
+          responseDocTypes,
+          responseInvestigator,
+          responseGrade,
+          responseFaculties,
+          responseParticipation
+        ] = await Promise.all([
+          fetch(`${API_URL}${API_ENDPOINTS.DOCUMENT_TYPES}`),
+          fetch(`${API_URL}${API_ENDPOINTS.INVESTIGATOR_TYPES}`),
+          fetch(`${API_URL}${API_ENDPOINTS.ACADEMIC_GRADES}`),
+          fetch(`${API_URL}${API_ENDPOINTS.FACULTIES}`),
+          fetch(`${API_URL}${API_ENDPOINTS.PARTICIPATION_TYPES}`)
+        ])
+
+        if (!responseDocTypes.ok || !responseInvestigator.ok || !responseGrade.ok || 
+            !responseFaculties.ok || !responseParticipation.ok) {
+          throw new Error('Error al obtener los datos iniciales')
         }
-        const data = await response.json()
-        const dataInvestigator = await responseInvestigator.json()
-        const dataGrade = await responseGrade.json()
-        const dataPart = await respParTypes.json()
-        const dataDep = await respDeparts.json()
-        const dataFac = await respFacult.json()
 
-        setDocumentTypes(data.data)
-        setInvestigatorType(dataInvestigator.data)
-        setParticipantType(dataPart.data)
-        setAcaDepartament(dataDep.data)
-        setFaculty(dataFac.data)
-        setGrade(dataGrade.data)
+        const [
+          dataDocTypes,
+          dataInvestigator,
+          dataGrade,
+          dataFaculties,
+          dataParticipation
+        ] = await Promise.all([
+          responseDocTypes.json(),
+          responseInvestigator.json(),
+          responseGrade.json(),
+          responseFaculties.json(),
+          responseParticipation.json()
+        ])
+
+        setDocumentTypes(dataDocTypes.data || [])
+        setInvestigatorTypes(dataInvestigator.data || [])
+        setParticipationTypes(dataParticipation.data || [])
+        setFaculties(dataFaculties.data || [])
+        setAcademicGrades(dataGrade.data || [])
 
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error desconocido')
-        console.error('Error fetching types:', err)
+        const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
+        setError(errorMessage)
+        console.error('Error fetching initial data:', err)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchDocumentTypes()
+    fetchInitialData()
   }, [])
+
+  // Cargar departamentos cuando cambie la facultad
+  useEffect(() => {
+    const fetchDepartmentsByFaculty = async () => {
+      if (!formData.faculty) {
+        setDepartments([])
+        return
+      }
+
+      try {
+        setLoadingDepartments(true)
+        const response = await fetch(`${API_URL}${API_ENDPOINTS.FACULTIES}/${formData.faculty}`)
+        
+        if (!response.ok) {
+          throw new Error('Error al obtener los departamentos de la facultad')
+        }
+
+        const data = await response.json()
+        const departmentsData = data.data?.academic_departament || []
+        setDepartments(departmentsData)
+        
+        // Limpiar el departamento seleccionado cuando cambie la facultad
+        if (formData.academic_department) {
+          onInputChange('academic_department', '')
+        }
+
+      } catch (err) {
+        console.error('Error fetching departments:', err)
+        setDepartments([])
+      } finally {
+        setLoadingDepartments(false)
+      }
+    }
+
+    fetchDepartmentsByFaculty()
+  }, [formData.faculty])
+
+  // Función para manejar cambio de facultad
+  const handleFacultyChange = (value: string) => {
+    onInputChange('faculty', value)
+  }
 
   if (loading) {
     return (
@@ -74,7 +136,10 @@ const UserConfigSection = ({
         <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">
           Configuración de Usuario
         </h3>
-        <p>Cargando tipos de documento...</p>
+        <div className="flex items-center space-x-2">
+          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p>Cargando información...</p>
+        </div>
       </div>
     )
   }
@@ -85,16 +150,26 @@ const UserConfigSection = ({
         <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">
           Configuración de Usuario
         </h3>
-        <p className="text-red-500">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <p className="text-red-600">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-2 text-sm text-red-800 underline hover:no-underline"
+          >
+            Recargar página
+          </button>
+        </div>
       </div>
     )
   }
+
   return (
     <div className="space-y-6">
       <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">
         Configuración de Usuario
       </h3>
 
+      {/* Primera fila: Tipo de documento y Sexo */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label htmlFor="documentType">Tipo de Documento *</Label>
@@ -137,6 +212,7 @@ const UserConfigSection = ({
         </div>
       </div>
 
+      {/* Segunda fila: Procedencia y Grado académico */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label>Procedencia</Label>
@@ -157,18 +233,18 @@ const UserConfigSection = ({
         </div>
 
         <div className="space-y-2">
-          <Label>Grado acádemico</Label>
+          <Label>Grado académico</Label>
           <Select
             value={formData.id_academic_grade}
             onValueChange={(value) => onInputChange('id_academic_grade', value)}
           >
             <SelectTrigger className={errors.id_academic_grade ? 'border-red-500' : ''}>
-              <SelectValue placeholder="Seleccione su grado acádemico" />
+              <SelectValue placeholder="Seleccione su grado académico" />
             </SelectTrigger>
             <SelectContent>
-              {grade.map((type) => (
-                <SelectItem key={type.ID} value={type.ID}>
-                  {type.name}
+              {academicGrades.map((grade) => (
+                <SelectItem key={grade.ID} value={grade.ID}>
+                  {grade.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -179,6 +255,7 @@ const UserConfigSection = ({
         </div>
       </div>
 
+      {/* Tercera fila: Tipo de investigador y Tipo de participante */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label>Tipo de investigador *</Label>
@@ -190,7 +267,7 @@ const UserConfigSection = ({
               <SelectValue placeholder="Seleccione tipo de investigador" />
             </SelectTrigger>
             <SelectContent>
-              {investigatorType.map((type) => (
+              {investigatorTypes.map((type) => (
                 <SelectItem key={type.ID} value={type.ID}>
                   {type.name}
                 </SelectItem>
@@ -201,44 +278,45 @@ const UserConfigSection = ({
             <p className="text-red-500 text-sm">{errors.id_investigator_types}</p>
           )}
         </div>
-        <div className="space-y-2">
-        <Label>Tipo de Participante *</Label>
-        <Select
-          value={formData.type_participation}
-          onValueChange={(value) => onInputChange('type_participation', value)}
-        >
-          <SelectTrigger className={errors.type_participation ? 'border-red-500' : ''}>
-            <SelectValue placeholder="Seleccione tipo de participante" />
-          </SelectTrigger>
-          <SelectContent>
-            {participantType.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.value}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.type_participation && (
-          <p className="text-red-500 text-sm">{errors.type_participation}</p>
-        )}
-      </div>
-      </div>
-      
 
+        <div className="space-y-2">
+          <Label>Tipo de Participante *</Label>
+          <Select
+            value={formData.type_participation}
+            onValueChange={(value) => onInputChange('type_participation', value)}
+          >
+            <SelectTrigger className={errors.type_participation ? 'border-red-500' : ''}>
+              <SelectValue placeholder="Seleccione tipo de participante" />
+            </SelectTrigger>
+            <SelectContent>
+              {participationTypes.map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.type_participation && (
+            <p className="text-red-500 text-sm">{errors.type_participation}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Cuarta fila: Facultad y Departamento académico */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label>Facultad *</Label>
           <Select
             value={formData.faculty}
-            onValueChange={(value) => onInputChange('faculty', value)}
+            onValueChange={handleFacultyChange}
           >
             <SelectTrigger className={errors.faculty ? 'border-red-500' : ''}>
               <SelectValue placeholder="Seleccione una facultad" />
             </SelectTrigger>
             <SelectContent>
-              {faculty.map((type) => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.value}
+              {faculties.map((faculty) => (
+                <SelectItem key={faculty.ID} value={faculty.ID}>
+                  {faculty.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -247,27 +325,37 @@ const UserConfigSection = ({
             <p className="text-red-500 text-sm">{errors.faculty}</p>
           )}
         </div>
+
         <div className="space-y-2">
-        <Label>Departamento academico *</Label>
-        <Select
-          value={formData.academic_department}
-          onValueChange={(value) => onInputChange('academic_department', value)}
-        >
-          <SelectTrigger className={errors.academic_department ? 'border-red-500' : ''}>
-            <SelectValue placeholder="Seleccione departamento Academico" />
-          </SelectTrigger>
-          <SelectContent>
-            {acaDepartament.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.value}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.academic_department && (
-          <p className="text-red-500 text-sm">{errors.academic_department}</p>
-        )}
-      </div>
+          <Label>Departamento académico *</Label>
+          <Select
+            value={formData.academic_department}
+            onValueChange={(value) => onInputChange('academic_department', value)}
+            disabled={!formData.faculty || loadingDepartments}
+          >
+            <SelectTrigger className={errors.academic_department ? 'border-red-500' : ''}>
+              <SelectValue 
+                placeholder={
+                  !formData.faculty 
+                    ? "Primero seleccione una facultad" 
+                    : loadingDepartments 
+                      ? "Cargando departamentos..." 
+                      : "Seleccione departamento académico"
+                } 
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {departments.map((department) => (
+                <SelectItem key={department.ID} value={department.ID}>
+                  {department.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.academic_department && (
+            <p className="text-red-500 text-sm">{errors.academic_department}</p>
+          )}
+        </div>
       </div>
     </div>
   )

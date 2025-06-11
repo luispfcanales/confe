@@ -1,33 +1,27 @@
-// user_registration.tsx
+// user_registration.tsx (Componente principal)
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { ArrowLeft, User } from 'lucide-react'
-
-// Importar componentes y utilidades
-import UserConfigSection from './components/UserConfigSection'
-import PersonalInfoSection from './components/PersonalInfoSection'
-import AccessConfigSection from './components/AccessConfigSection'
+import { UserIcon } from 'lucide-react'
 import { UserFormData, FormErrors } from './types'
 import { INITIAL_FORM_DATA } from './constants'
 import { validateForm } from './validation'
 import { registerUser } from './userService'
+import UserConfigSection from './components/UserConfigSection'
+import PersonalInfoSection from './components/PersonalInfoSection'
+import AccessConfigSection from './components/AccessConfigSection'
 
 const UserRegistration = () => {
-  const navigate = useNavigate()
-  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState<UserFormData>(INITIAL_FORM_DATA)
   const [errors, setErrors] = useState<FormErrors>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleInputChange = (field: keyof UserFormData, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }))
-    
-    // Clear error when user starts typing
+
+    // Limpiar error del campo cuando el usuario empiece a escribir
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -36,112 +30,106 @@ const UserRegistration = () => {
     }
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // Validar formulario
     const validationErrors = validateForm(formData)
     
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
-      toast.error('Por favor corrija los errores en el formulario')
       return
     }
 
-    setLoading(true)
+    setIsSubmitting(true)
     
     try {
       await registerUser(formData)
-      toast.success('Usuario registrado exitosamente')
       
-      // Reset form
+      // Resetear formulario después del registro exitoso
       setFormData(INITIAL_FORM_DATA)
       setErrors({})
-      navigate('/login')
+      
+      // Opcional: redirigir o mostrar mensaje de éxito
+      console.log('Registro exitoso')
+      
     } catch (error) {
-      toast.error('Error al registrar usuario')
-      console.error('Error:', error)
+      console.error('Error en el registro:', error)
+      // El error ya se muestra en el toast desde userService
     } finally {
-      setLoading(false)
+      setIsSubmitting(false)
     }
   }
 
-  const handleGoBack = () => {
-    // Aquí navegarías de vuelta
-    navigate('/')
-    console.log('Navegando hacia atrás...')
+  const handleCancel = () => {
+    setFormData(INITIAL_FORM_DATA)
+    setErrors({})
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6">
-      <div className="container max-w-4xl mx-auto">
-        <Button
-          variant="ghost"
-          onClick={handleGoBack}
-          className="mb-6 hover:bg-gray-200 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Volver
-        </Button>
-
-        <Card className="shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
-            <CardTitle className="text-3xl flex items-center">
-              <User className="w-8 h-8 mr-3" />
-              Registro de Usuario
-            </CardTitle>
-          </CardHeader>
-          
-          <CardContent className="p-8">
-            <div className="space-y-8">
-              
-              {/* Sección de Configuración de Usuario */}
-              <UserConfigSection
-                formData={formData}
-                errors={errors}
-                onInputChange={handleInputChange}
-              />
-
-              {/* Sección de Información Personal */}
-              <PersonalInfoSection
-                formData={formData}
-                errors={errors}
-                onInputChange={handleInputChange}
-              />
-
-              {/* Sección de Configuración de Acceso */}
-              <AccessConfigSection
-                formData={formData}
-                errors={errors}
-                onInputChange={handleInputChange}
-              />
-
-              {/* Botones de Acción */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleGoBack}
-                  className="flex-1 sm:flex-none"
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  {loading ? (
-                    <>
-                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-b-transparent"></div>
-                      Registrando...
-                    </>
-                  ) : (
-                    'Registrar Usuario'
-                  )}
-                </Button>
-              </div>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          {/* Header */}
+          <div className="bg-blue-600 text-white p-6">
+            <div className="flex items-center space-x-3">
+              <UserIcon className="w-8 h-8" />
+              <h1 className="text-2xl font-bold">Registro de Usuario</h1>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 space-y-8">
+            {/* Configuración de Usuario */}
+            <UserConfigSection
+              formData={formData}
+              errors={errors}
+              onInputChange={handleInputChange}
+            />
+
+            {/* Información Personal */}
+            <PersonalInfoSection
+              formData={formData}
+              errors={errors}
+              onInputChange={handleInputChange}
+            />
+
+            {/* Configuración de Acceso */}
+            <AccessConfigSection
+              formData={formData}
+              errors={errors}
+              onInputChange={handleInputChange}
+            />
+
+            {/* Botones de acción */}
+            <div className="flex justify-between pt-6 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancel}
+                disabled={isSubmitting}
+                className="px-8"
+              >
+                Cancelar
+              </Button>
+              
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-8 bg-blue-600 hover:bg-blue-700"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Registrando...</span>
+                  </div>
+                ) : (
+                  'Registrar Usuario'
+                )}
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   )

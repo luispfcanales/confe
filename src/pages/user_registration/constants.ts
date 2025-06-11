@@ -1,14 +1,7 @@
-import { DocumentType } from './types'
-
-export const DOCUMENT_TYPES: DocumentType[] = [
-  { ID: '1', name: 'DNI' },
-  { ID: '2', name: 'Pasaporte' },
-  { ID: '3', name: 'Carnet de Extranjería' }
-]
-
-export const INITIAL_FORM_DATA = {
+// constants.ts
+import { UserFormData } from './types'
+export const INITIAL_FORM_DATA: UserFormData = {
   documentTypeId: '',
-  roleId: '',
   firtsName: '',
   lastName: '',
   identityDocument: '',
@@ -22,9 +15,18 @@ export const INITIAL_FORM_DATA = {
   isInternal: true,
   id_investigator_types: '',
   id_academic_grade: '',
-  type_participation:  '',     
-	faculty: '',  
-	academic_department: '' 
+  type_participation: '',
+  faculty: '',
+  academic_department: ''
 }
 
 export const PASSWORD_MIN_LENGTH = 6
+
+export const API_ENDPOINTS = {
+  DOCUMENT_TYPES: '/api/document-types/all',
+  INVESTIGATOR_TYPES: '/api/investigator-types',
+  ACADEMIC_GRADES: '/api/academic-grades',
+  FACULTIES: '/api/faculties',
+  PARTICIPATION_TYPES: '/api/general/participation-types',
+  CREATE_USER: '/api/users/create-investigator'
+} as const

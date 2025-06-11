@@ -32,6 +32,7 @@ const PersonalInfoSection = ({
               onChange={(e) => onInputChange('identityDocument', e.target.value)}
               placeholder="Número de documento"
               className={`pl-10 ${errors.identityDocument ? 'border-red-500' : ''}`}
+              maxLength={8}
             />
           </div>
           {errors.identityDocument && (
@@ -49,6 +50,7 @@ const PersonalInfoSection = ({
               onChange={(e) => onInputChange('phoneNumber', e.target.value)}
               placeholder="987654321"
               className={`pl-10 ${errors.phoneNumber ? 'border-red-500' : ''}`}
+              maxLength={9}
             />
           </div>
           {errors.phoneNumber && (
