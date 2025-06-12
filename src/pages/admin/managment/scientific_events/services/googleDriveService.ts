@@ -20,41 +20,20 @@ import { API_URL } from '@/constants/api';
   export class GoogleDriveService {
     private static baseUrl = `${API_BASE_URL}/api/drive`;
   
-    // ========== MÉTODOS EXISTENTES (sin cambios) ==========
+    // ========== MÉTODOS EXISTENTES ==========
   
     // Obtener archivos de una carpeta específica de Google Drive
     static async getDriveFiles(folderId: string): Promise<GoogleDriveFile[]> {
       try {
-        // DATOS MOCK TEMPORALES - Quitar cuando tengas el backend listo
-        const USE_MOCK_DATA = false; // Cambiar a false cuando el backend esté listo
-        
-        if (USE_MOCK_DATA) {
-          // Simular delay de API
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          // Datos mock para probar la interfaz
-          const mockFiles: GoogleDriveFile[] = [
-            {
-              ID: '2',
-              name: 'Presentaciones',
-              mimeType: 'application/vnd.google-apps.folder',
-              createdTime: '2024-01-16T08:00:00Z',
-              modifiedTime: '2024-01-16T08:00:00Z'
-            },
-          ];
-          
-          return mockFiles;
-        }
         const response = await fetch(`${this.baseUrl}/files?parentID=${folderId}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data: DriveFilesResponse = await response.json();
-        // Validar que la respuesta contenga un array válido
         return normalizeFilesResponse(data);
       } catch (error) {
         console.error('Error fetching Drive files:', error);
-        return []; // Siempre retornar un array, incluso en caso de error
+        return [];
       }
     }
   
@@ -111,7 +90,6 @@ import { API_URL } from '@/constants/api';
         });
   
         if (!response.ok) {
-            console.log()
           throw new Error(`HTTP error! status: ${response.status}`);
         }
   
@@ -123,7 +101,7 @@ import { API_URL } from '@/constants/api';
       }
     }
   
-    // ========== NUEVOS MÉTODOS DE ELIMINACIÓN ==========
+    // ========== MÉTODOS DE ELIMINACIÓN ==========
   
     // Verificar permisos de un archivo
     static async checkFilePermissions(fileId: string): Promise<FilePermissionInfo> {
@@ -202,10 +180,45 @@ import { API_URL } from '@/constants/api';
       }
     }
   
+    // ========== NUEVO: ASIGNACIÓN DE CARPETAS ==========
+  
+    // Asignar carpeta a una sección específica del evento (galería o posters)
+    static async assignFolderToEventSection(
+      eventId: string, 
+      folderId: string, 
+      sectionType: 'gallery' | 'posters'
+    ): Promise<{ success: boolean; message: string }> {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/scientific-events/${eventId}/assign-folder`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            folder_id: folderId,
+            section_type: sectionType
+          }),
+        });
+  
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || errorData.message || `HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        return {
+          success: data.success || true,
+          message: data.message || `Carpeta asignada exitosamente a ${sectionType}`
+        };
+      } catch (error) {
+        console.error(`Error assigning folder ${folderId} to ${sectionType} for event ${eventId}:`, error);
+        throw error;
+      }
+    }
+  
     // Método de eliminación original (para compatibilidad)
     static async deleteFile(fileId: string): Promise<void> {
       try {
-        // Usar estrategia segura por defecto
         await this.deleteFileWithStrategy(fileId, 'safe');
       } catch (error) {
         console.error(`Error deleting file ${fileId}:`, error);
@@ -213,7 +226,7 @@ import { API_URL } from '@/constants/api';
       }
     }
   
-    // ========== UTILIDADES (existentes) ==========
+    // ========== UTILIDADES ==========
   
     // Descargar archivo desde Google Drive
     static async downloadFile(file: GoogleDriveFile): Promise<void> {
@@ -223,7 +236,6 @@ import { API_URL } from '@/constants/api';
         } else if (file.webviewLink) {
           window.open(file.webviewLink, '_blank');
         } else {
-          // Fallback: usar endpoint del backend
           const response = await fetch(`${this.baseUrl}/download/${file.ID}`);
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -252,7 +264,7 @@ import { API_URL } from '@/constants/api';
         return permissions.canDelete || permissions.ownedByMe;
       } catch (error) {
         console.warn(`Could not check permissions for file ${fileId}:`, error);
-        return false; // Por seguridad, asumir que no se puede eliminar
+        return false;
       }
     }
   
@@ -304,35 +316,9 @@ import { API_URL } from '@/constants/api';
       return null;
     }
   
-    // Si no tienes el método getEventById, agrégalo:
+    // Obtener evento por ID (si no tienes el método)
     static async getEventById(id: string): Promise<ScientificEvent> {
       try {
-        // DATOS MOCK TEMPORALES - Reemplazar cuando tengas el backend
-        const USE_MOCK_DATA = true; // Cambiar a false cuando el backend esté listo
-        
-        if (USE_MOCK_DATA) {
-          // Simular delay
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          // Evento mock con Google Drive
-          const mockEvent: ScientificEvent = {
-            ID: id,
-            name: 'Conferencia Internacional de Investigación Científica',
-            description: 'Evento anual que reúne a investigadores de todo el mundo para compartir avances en ciencia y tecnología.',
-            year: 2024,
-            start_date: '2024-06-15',
-            end_date: '2024-06-18',
-            location: 'Lima, Perú',
-            is_active: true,
-            created_at: '2024-01-15T08:00:00Z',
-            updated_at: '2024-01-15T08:00:00Z',
-            id_path_drive_file: '1BzGTP82ybSi-vhz1Y3_X3xqzsvXZ85y' // ID de Google Drive
-          };
-          
-          return mockEvent;
-        }
-  
-        // Implementación real del API
         const response = await fetch(`${API_BASE_URL}/api/scientific-events/${id}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

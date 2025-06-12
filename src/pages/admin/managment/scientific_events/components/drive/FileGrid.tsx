@@ -9,6 +9,7 @@ interface FileGridProps {
   isLoading: boolean;
   viewMode: 'grid' | 'list';
   dragActive: boolean;
+  eventId: string; // ID del evento científico
   onFolderClick: (folder: GoogleDriveFile) => void;
   onFileChange: () => void;
   onDrag: (e: React.DragEvent) => void;
@@ -44,6 +45,7 @@ export const FileGrid: React.FC<FileGridProps> = ({
   isLoading,
   viewMode,
   dragActive,
+  eventId,
   onFolderClick,
   onFileChange,
   onDrag,
@@ -91,6 +93,7 @@ export const FileGrid: React.FC<FileGridProps> = ({
                 key={file.ID}
                 file={file}
                 viewMode={viewMode}
+                eventId={eventId}
                 onFolderClick={onFolderClick}
                 onFileChange={onFileChange}
               />

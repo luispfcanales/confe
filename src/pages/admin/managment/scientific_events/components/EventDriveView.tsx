@@ -44,18 +44,17 @@ export const EventDriveView: React.FC<EventDriveViewProps> = ({ event }) => {
       setError(null);
       const filesData = await GoogleDriveService.getDriveFiles(currentFolderId);
       
-      // Asegurar que filesData sea un array
       if (Array.isArray(filesData)) {
         setFiles(filesData);
       } else {
         console.warn('filesData no es un array:', filesData);
-        setFiles([]); // Fallback a array vacío
+        setFiles([]);
         setError('Formato de respuesta inválido del servidor');
       }
     } catch (error) {
       console.error('Error fetching Drive files:', error);
       setError('Error al cargar archivos de Google Drive');
-      setFiles([]); // Asegurar que files sea un array vacío en caso de error
+      setFiles([]);
     } finally {
       setIsLoading(false);
     }
@@ -230,6 +229,7 @@ export const EventDriveView: React.FC<EventDriveViewProps> = ({ event }) => {
           isLoading={isLoading}
           viewMode={viewMode}
           dragActive={dragActive}
+          eventId={event.ID} // Pasar el ID del evento
           onFolderClick={handleFolderClick}
           onFileChange={fetchFiles}
           onDrag={handleDrag}

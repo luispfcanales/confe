@@ -1,4 +1,4 @@
-// types/driveFiles.ts
+// types/driveFiles.ts (actualización)
 export interface GoogleDriveFile {
   ID: string;
   name: string;
@@ -30,7 +30,7 @@ export interface DriveFolder {
   parent_id: string;
 }
 
-// Extender tu tipo existente para incluir el id_path_drive_file
+// Extender tu tipo existente para incluir el id_path_drive_file y campos de galería/posters
 export interface ScientificEventWithDrive {
   ID: string;
   year: number;
@@ -42,8 +42,27 @@ export interface ScientificEventWithDrive {
   is_active: boolean;
   created_at: string;
   updated_at: string;
-  id_path_drive_file?: string; // Campo de Google Drive
+  id_path_drive_file?: string; // Campo de Google Drive principal
+  gallery_folder_id?: string; // Campo para carpeta de galería
+  posters_folder_id?: string; // Campo para carpeta de posters
   parents?: string[];
+}
+
+// Tipo base del evento científico (para el servicio)
+export interface ScientificEvent {
+  ID: string;
+  year: number;
+  name: string;
+  description: string;
+  start_date?: string;
+  end_date?: string;
+  location: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  id_path_drive_file?: string;
+  gallery_folder_id?: string; // Nuevo campo
+  posters_folder_id?: string; // Nuevo campo
 }
 
 export interface DriveFilesResponse {
@@ -73,7 +92,7 @@ export interface BreadcrumbItem {
   type: 'folder' | 'root';
 }
 
-// Nuevos interfaces para manejo de permisos y eliminación
+// Interfaces para manejo de permisos y eliminación
 export interface FilePermissionInfo {
   fileId: string;
   fileName: string;
@@ -92,22 +111,29 @@ export interface DeleteResult {
   fileName: string;
 }
 
+// Nuevo interface para la respuesta de asignación de carpetas
+export interface FolderAssignmentResult {
+  success: boolean;
+  message: string;
+  event_id: string;
+  folder_id: string;
+  section_type: 'gallery' | 'posters';
+  updated_at: string;
+}
+
 // Función helper para normalizar la respuesta
 export function normalizeFilesResponse(response: DriveFilesResponse): GoogleDriveFile[] {
   if (!response.success || !response.data) {
     return [];
   }
-
   // Si es array, retornarlo directamente
   if (Array.isArray(response.data)) {
     return response.data;
   }
-
   // Si es objeto, convertir a array
   if (typeof response.data === 'object') {
     return [response.data];
   }
-
   return [];
 }
 

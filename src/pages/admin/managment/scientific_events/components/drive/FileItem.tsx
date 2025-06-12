@@ -1,4 +1,4 @@
-// components/drive/FileItem.tsx
+// components/drive/FileItem.tsx (Fixed version)
 import React from 'react';
 import { Folder, FileText } from 'lucide-react';
 import { GoogleDriveFile } from '../../driveFiles';
@@ -8,6 +8,7 @@ import { FileActionDropdown } from './FileActionDropDown';
 interface FileItemProps {
   file: GoogleDriveFile;
   viewMode: 'grid' | 'list';
+  eventId: string;
   onFolderClick: (folder: GoogleDriveFile) => void;
   onFileChange: () => void;
 }
@@ -15,14 +16,28 @@ interface FileItemProps {
 export const FileItem: React.FC<FileItemProps> = ({ 
   file, 
   viewMode, 
+  eventId,
   onFolderClick, 
   onFileChange 
 }) => {
   const isFolder = GoogleDriveService.isFolder(file);
   const previewUrl = GoogleDriveService.getPreviewUrl(file);
 
-  const handleClick = () => {
-    if (isFolder) {
+  const handleClick = (e: React.MouseEvent) => {
+    // Solo navegar si se hace clic en la carpeta, no en los controles
+    if (isFolder && e.currentTarget === e.target) {
+      onFolderClick(file);
+    }
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Verificar que no se haya hecho clic en el dropdown
+    const target = e.target as HTMLElement;
+    const isDropdownClick = target.closest('[data-dropdown-trigger]') || 
+                           target.closest('[role="menuitem"]') ||
+                           target.closest('button[aria-haspopup]');
+    
+    if (!isDropdownClick && isFolder) {
       onFolderClick(file);
     }
   };
@@ -30,9 +45,8 @@ export const FileItem: React.FC<FileItemProps> = ({
   if (viewMode === 'grid') {
     return (
       <div
-        key={file.ID}
         className="group relative p-4 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 cursor-pointer"
-        onClick={handleClick}
+        onClick={handleCardClick}
       >
         <div className="flex flex-col items-center space-y-3">
           {/* Icono/Preview del archivo */}
@@ -91,12 +105,20 @@ export const FileItem: React.FC<FileItemProps> = ({
           </div>
         </div>
         
-        {/* Menú de acciones */}
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        {/* Menú de acciones - IMPORTANTE: stopPropagation en el contenedor */}
+        <div 
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          onClick={(e) => {
+            e.stopPropagation(); // Evitar que se propague al card
+            console.log('🎯 Dropdown container clicked');
+          }}
+          data-dropdown-trigger="true"
+        >
           <FileActionDropdown
             file={file}
+            eventId={eventId}
             onFileChange={onFileChange}
-            className="bg-white/90 backdrop-blur-sm hover:bg-white"
+            className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-sm"
           />
         </div>
       </div>
@@ -106,9 +128,8 @@ export const FileItem: React.FC<FileItemProps> = ({
   // Vista de lista
   return (
     <div
-      key={file.ID}
       className="group flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 cursor-pointer"
-      onClick={handleClick}
+      onClick={handleCardClick}
     >
       {/* Icono del archivo */}
       <div className="flex-shrink-0 mr-3">
@@ -159,9 +180,17 @@ export const FileItem: React.FC<FileItemProps> = ({
           </div>
           
           {/* Menú de acciones */}
-          <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div 
+            className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            onClick={(e) => {
+              e.stopPropagation(); // Evitar que se propague al card
+              console.log('🎯 Dropdown container clicked (list view)');
+            }}
+            data-dropdown-trigger="true"
+          >
             <FileActionDropdown
               file={file}
+              eventId={eventId}
               onFileChange={onFileChange}
             />
           </div>

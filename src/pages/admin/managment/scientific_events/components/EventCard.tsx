@@ -1,4 +1,4 @@
-// components/event-card.tsx
+// components/EventCard.tsx - Actualizado para usar modal de confirmación
 import React from 'react';
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -28,10 +28,10 @@ const EventCard: React.FC<EventCardProps> = ({
     });
   };
 
+  // Cambié esta función para que solo llame a onDelete sin confirmación
+  // La confirmación ahora se maneja en el componente padre con el modal
   const handleDelete = () => {
-    if (window.confirm('¿Está seguro de que desea eliminar este evento?')) {
-      onDelete(event.ID);
-    }
+    onDelete(event.ID);
   };
 
   const isSubmissionDeadlineClose = () => {
