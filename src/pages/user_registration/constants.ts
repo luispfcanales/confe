@@ -2,7 +2,7 @@
 import { UserFormData } from './types'
 export const INITIAL_FORM_DATA: UserFormData = {
   documentTypeId: '',
-  firtsName: '',
+  firstName: '',
   lastName: '',
   identityDocument: '',
   address: '',

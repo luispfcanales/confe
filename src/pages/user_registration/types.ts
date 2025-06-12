@@ -35,7 +35,7 @@ export interface ParticipationType {
 
 export interface UserFormData {
   documentTypeId: string
-  firtsName: string
+  firstName: string
   lastName: string
   identityDocument: string
   address: string

@@ -62,13 +62,13 @@ const PersonalInfoSection = ({
           <Label htmlFor="firtsName">Nombres *</Label>
           <Input
             id="firtsName"
-            value={formData.firtsName}
-            onChange={(e) => onInputChange('firtsName', e.target.value)}
+            value={formData.firstName}
+            onChange={(e) => onInputChange('firstName', e.target.value)}
             placeholder="Ingrese sus nombres"
-            className={errors.firtsName ? 'border-red-500' : ''}
+            className={errors.firstName ? 'border-red-500' : ''}
           />
-          {errors.firtsName && (
-            <p className="text-red-500 text-sm">{errors.firtsName}</p>
+          {errors.firstName && (
+            <p className="text-red-500 text-sm">{errors.firstName}</p>
           )}
         </div>
 
