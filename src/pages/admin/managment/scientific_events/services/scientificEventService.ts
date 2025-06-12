@@ -1,3 +1,4 @@
+
 import { API_URL } from '@/constants/api';
 import { ScientificEvent, EventFormData, ScientificEventApiResponse, SingleScientificEventApiResponse } from '../types';
 
@@ -11,6 +12,8 @@ export class ScientificEventsService {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data: ScientificEventApiResponse = await response.json();
+      console.log(data.data)
+
       return data.data || [];
     } catch (error) {
       console.error('Error fetching events:', error);
@@ -107,9 +110,17 @@ export class ScientificEventsService {
   static async createEvent(eventData: EventFormData): Promise<ScientificEvent> {
     try {
       const payload = {
-        ...eventData,
+        name: eventData.name,
+        description: eventData.description,
+        location: eventData.location,
+        year: eventData.year,
         start_date: eventData.start_date ? new Date(eventData.start_date).toISOString() : null,
         end_date: eventData.end_date ? new Date(eventData.end_date).toISOString() : null,
+        submission_deadline: eventData.submission_deadline ? new Date(eventData.submission_deadline).toISOString() : null,
+        //id_path_drive_file: eventData.id_path_drive_file || '',
+        id_path_drive_file_poster: eventData.id_path_drive_file_poster || '',
+        id_path_drive_file_gallery: eventData.id_path_drive_file_gallery || '',
+        is_active: eventData.is_active,
       };
 
       const response = await fetch(this.baseUrl, {
@@ -121,7 +132,8 @@ export class ScientificEventsService {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData}`);
       }
 
       const data: SingleScientificEventApiResponse = await response.json();
@@ -135,9 +147,17 @@ export class ScientificEventsService {
   static async updateEvent(id: string, eventData: EventFormData): Promise<ScientificEvent> {
     try {
       const payload = {
-        ...eventData,
+        name: eventData.name,
+        description: eventData.description,
+        location: eventData.location,
+        year: eventData.year,
         start_date: eventData.start_date ? new Date(eventData.start_date).toISOString() : null,
         end_date: eventData.end_date ? new Date(eventData.end_date).toISOString() : null,
+        submission_deadline: eventData.submission_deadline ? new Date(eventData.submission_deadline).toISOString() : null,
+        id_path_drive_file: eventData.id_path_drive_file || '',
+        id_path_drive_file_poster: eventData.id_path_drive_file_poster || '',
+        id_path_drive_file_gallery: eventData.id_path_drive_file_gallery || '',
+        is_active: eventData.is_active,
       };
 
       const response = await fetch(`${this.baseUrl}/${id}`, {
@@ -148,13 +168,12 @@ export class ScientificEventsService {
         body: JSON.stringify(payload),
       });
 
-      
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData}`);
       }
 
       const data: SingleScientificEventApiResponse = await response.json();
-      console.log(data)
       return data.data;
     } catch (error) {
       console.error(`Error updating event ${id}:`, error);
@@ -169,7 +188,8 @@ export class ScientificEventsService {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData}`);
       }
     } catch (error) {
       console.error(`Error deleting event ${id}:`, error);
@@ -184,7 +204,8 @@ export class ScientificEventsService {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData}`);
       }
     } catch (error) {
       console.error(`Error activating event ${id}:`, error);
@@ -199,10 +220,91 @@ export class ScientificEventsService {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData}`);
       }
     } catch (error) {
       console.error(`Error deactivating event ${id}:`, error);
+      throw error;
+    }
+  }
+
+  // Métodos adicionales útiles para la gestión de eventos científicos
+
+  static async getUpcomingEvents(): Promise<ScientificEvent[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}/upcoming`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data: ScientificEventApiResponse = await response.json();
+      return data.data || [];
+    } catch (error) {
+      console.error('Error fetching upcoming events:', error);
+      throw error;
+    }
+  }
+
+  static async getEventsByLocation(location: string): Promise<ScientificEvent[]> {
+    try {
+      const encodedLocation = encodeURIComponent(location);
+      const response = await fetch(`${this.baseUrl}/location/${encodedLocation}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data: ScientificEventApiResponse = await response.json();
+      return data.data || [];
+    } catch (error) {
+      console.error(`Error fetching events by location ${location}:`, error);
+      throw error;
+    }
+  }
+
+  static async searchEvents(query: string): Promise<ScientificEvent[]> {
+    try {
+      const params = new URLSearchParams({ q: query });
+      const response = await fetch(`${this.baseUrl}/search?${params}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data: ScientificEventApiResponse = await response.json();
+      return data.data || [];
+    } catch (error) {
+      console.error(`Error searching events with query ${query}:`, error);
+      throw error;
+    }
+  }
+
+  static async getEventsWithSubmissionDeadline(): Promise<ScientificEvent[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}/with-deadline`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data: ScientificEventApiResponse = await response.json();
+      return data.data || [];
+    } catch (error) {
+      console.error('Error fetching events with submission deadline:', error);
+      throw error;
+    }
+  }
+
+  static async getEventStatistics(): Promise<{
+    total: number;
+    active: number;
+    inactive: number;
+    upcoming: number;
+    withDeadlines: number;
+  }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/statistics`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      console.error('Error fetching event statistics:', error);
       throw error;
     }
   }

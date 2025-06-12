@@ -1,17 +1,10 @@
-// components/event-filters.tsx
+// components/EventFilters.tsx
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Search, Filter } from 'lucide-react';
-import { EventFiltersProps } from '../types';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EventFiltersProps, FilterStatus } from '../types';
 
 const EventFilters: React.FC<EventFiltersProps> = ({
   searchTerm,
@@ -19,76 +12,86 @@ const EventFilters: React.FC<EventFiltersProps> = ({
   filterStatus,
   onFilterChange
 }) => {
+  const handleStatusChange = (value: string) => {
+    onFilterChange(value as FilterStatus);
+  };
+
   return (
-    <Card className="mb-6">
-      <CardContent className="p-6">
-        <div className="flex flex-col sm:flex-row gap-6">
-          {/* Search Input */}
-          <div className="flex-1 space-y-2">
-            <Label htmlFor="search" className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <Search className="h-4 w-4" />
-              Buscar eventos
-            </Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                id="search"
-                type="text"
-                placeholder="Buscar por nombre, descripción o ubicación..."
-                value={searchTerm}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          {/* Status Filter */}
-          <div className="space-y-2 min-w-[200px]">
-            <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              Estado
-            </Label>
-            <Select value={filterStatus} onValueChange={onFilterChange}>
-              <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
-                <SelectValue placeholder="Seleccionar estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                    Todos los eventos
-                  </div>
-                </SelectItem>
-                <SelectItem value="active">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                    Eventos activos
-                  </div>
-                </SelectItem>
-                <SelectItem value="inactive">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-gray-500"></div>
-                    Eventos inactivos
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+    <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
+      <div className="flex items-center gap-2 mb-4">
+        <Filter className="h-5 w-5 text-gray-500" />
+        <h3 className="text-lg font-medium text-gray-900">Filtros de Búsqueda</h3>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Search Input */}
+        <div className="space-y-2">
+          <Label htmlFor="search" className="text-sm font-medium text-gray-700">
+            Buscar eventos
+          </Label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              id="search"
+              type="text"
+              placeholder="Buscar por nombre, descripción o ubicación..."
+              value={searchTerm}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+            />
           </div>
         </div>
 
-        {/* Quick stats or info */}
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <div className="bg-blue-100 p-1 rounded">
-                <Search className="h-3 w-3 text-blue-600" />
-              </div>
-              <span>Utiliza los filtros para encontrar eventos específicos</span>
-            </div>
+        {/* Status Filter */}
+        <div className="space-y-2">
+          <Label htmlFor="status" className="text-sm font-medium text-gray-700">
+            Estado del evento
+          </Label>
+          <Select value={filterStatus} onValueChange={handleStatusChange}>
+            <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+              <SelectValue placeholder="Seleccionar estado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos los eventos</SelectItem>
+              <SelectItem value="active">Solo eventos activos</SelectItem>
+              <SelectItem value="inactive">Solo eventos inactivos</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      {(searchTerm || filterStatus !== 'all') && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-600">
+              Filtros aplicados
+            </p>
+            <button
+              onClick={() => {
+                onSearchChange('');
+                onFilterChange('all');
+              }}
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Limpiar filtros
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {searchTerm && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                Búsqueda: "{searchTerm}"
+              </span>
+            )}
+            {filterStatus !== 'all' && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                Estado: {filterStatus === 'active' ? 'Activos' : 'Inactivos'}
+              </span>
+            )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 };
 

@@ -10,6 +10,7 @@ import {
   Trash2,
   CalendarDays,
   Images,
+  Clock,
 } from 'lucide-react';
 import { EventCardProps } from '../types';
 
@@ -33,6 +34,21 @@ const EventCard: React.FC<EventCardProps> = ({
     }
   };
 
+  const isSubmissionDeadlineClose = () => {
+    if (!event.submission_deadline) return false;
+    const deadline = new Date(event.submission_deadline);
+    const now = new Date();
+    const daysUntilDeadline = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return daysUntilDeadline <= 7 && daysUntilDeadline > 0;
+  };
+
+  const hasDeadlinePassed = () => {
+    if (!event.submission_deadline) return false;
+    const deadline = new Date(event.submission_deadline);
+    const now = new Date();
+    return deadline < now;
+  };
+
   return (
     <Card className="group hover:shadow-lg transition-all duration-200 border-gray-200 hover:border-gray-300">
       <CardHeader className="pb-3">
@@ -43,15 +59,37 @@ const EventCard: React.FC<EventCardProps> = ({
             </div>
             <span className="text-sm font-medium text-gray-600">{event.year}</span>
           </div>
-          <Badge 
-            variant={event.is_active ? "default" : "secondary"}
-            className={event.is_active 
-              ? "bg-green-100 text-green-700 hover:bg-green-100" 
-              : "bg-gray-100 text-gray-700 hover:bg-gray-100"
-            }
-          >
-            {event.is_active ? 'Activo' : 'Inactivo'}
-          </Badge>
+          <div className="flex flex-col gap-1">
+            <Badge 
+              variant={event.is_active ? "default" : "secondary"}
+              className={event.is_active 
+                ? "bg-green-100 text-green-700 hover:bg-green-100" 
+                : "bg-gray-100 text-gray-700 hover:bg-gray-100"
+              }
+            >
+              {event.is_active ? 'Activo' : 'Inactivo'}
+            </Badge>
+            {event.submission_deadline && (
+              <Badge 
+                variant="outline"
+                className={
+                  hasDeadlinePassed() 
+                    ? "bg-red-50 text-red-700 border-red-200" 
+                    : isSubmissionDeadlineClose()
+                    ? "bg-orange-50 text-orange-700 border-orange-200"
+                    : "bg-blue-50 text-blue-700 border-blue-200"
+                }
+              >
+                <Clock className="h-3 w-3 mr-1" />
+                {hasDeadlinePassed() 
+                  ? 'Plazo cerrado' 
+                  : isSubmissionDeadlineClose() 
+                  ? 'Plazo próximo' 
+                  : 'Plazo abierto'
+                }
+              </Badge>
+            )}
+          </div>
         </div>
       </CardHeader>
 
@@ -77,6 +115,15 @@ const EventCard: React.FC<EventCardProps> = ({
             </div>
           )}
           
+          {event.submission_deadline && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Clock className="h-4 w-4 text-gray-400" />
+              <span>
+                Plazo: {formatDate(event.submission_deadline)}
+              </span>
+            </div>
+          )}
+          
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <MapPin className="h-4 w-4 text-gray-400" />
             <span className="truncate">{event.location}</span>
@@ -86,16 +133,6 @@ const EventCard: React.FC<EventCardProps> = ({
 
       <CardFooter className="pt-4 border-t border-gray-100">
         <div className="flex gap-2 w-full">
-          {/* <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onView(event.ID)}
-            className="flex items-center gap-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100"
-          >
-            <Eye className="h-4 w-4" />
-            Ver
-          </Button> */}
-          
           <Button
             variant="ghost"
             size="sm"
@@ -121,9 +158,10 @@ const EventCard: React.FC<EventCardProps> = ({
             size="sm"
             onClick={() => onView(event.ID)}
             className="flex items-center gap-1.5 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50"
+            disabled={!event.id_path_drive_file}
           >
             <Images className="h-4 w-4" />
-            Ver
+            Ver Drive
           </Button>
         </div>
       </CardFooter>

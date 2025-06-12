@@ -1,6 +1,6 @@
-// index.tsx - Archivo principal modificado
+// index.tsx - Archivo principal actualizado
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Agregar esta importación
+import { useNavigate } from 'react-router-dom';
 import { Plus, Calendar } from 'lucide-react';
 import { ScientificEvent, EventFormData, FilterStatus } from './types';
 import EventCard from './components/EventCard';
@@ -8,40 +8,58 @@ import EventFilters from './components/EventFilters';
 import EventFormModal from './components/EventFormModal';
 import { ScientificEventsService } from './services/scientificEventService';
 
-// Mock data para desarrollo/testing
+// Mock data actualizado para desarrollo/testing
 const mockEvents: ScientificEvent[] = [
   {
     ID: '1',
     name: 'Conferencia Internacional de Investigación Científica',
     description: 'Evento anual que reúne a investigadores de todo el mundo para compartir avances en ciencia y tecnología.',
+    location: 'Lima, Perú',
     year: 2024,
     start_date: '2024-06-15',
     end_date: '2024-06-18',
-    location: 'Lima, Perú',
+    submission_deadline: '2024-05-15',
+    id_path_drive_file: '1BzGTP82ybSi-vhz1Y3_X3xqzsvXZ85y',
+    id_path_drive_file_poster: '1CzHTP92ybSi-whz2Y4_X4xqztvXZ95z',
+    id_path_drive_file_gallery: '1DzITP03ybSi-xhz3Y5_X5xqzuvXZ06a',
     is_active: true,
     created_at: '2024-01-15T08:00:00Z',
-    updated_at: '2024-01-15T08:00:00Z',
-    id_path_drive_file: '1BzGTP82ybSi-vhz1Y3_X3xqzsvXZ85y' // Agregar este campo
+    updated_at: '2024-01-15T08:00:00Z'
   },
   {
     ID: '2',
     name: 'Simposio de Biotecnología Avanzada',
     description: 'Encuentro especializado en biotecnología y sus aplicaciones en medicina y agricultura.',
+    location: 'Arequipa, Perú',
     year: 2024,
     start_date: '2024-08-20',
     end_date: '2024-08-22',
-    location: 'Arequipa, Perú',
+    submission_deadline: '2024-07-10',
+    id_path_drive_file: '1EzJTP14ybSi-yhz4Y6_X6xqzwvXZ17b',
+    id_path_drive_file_poster: '1FzKTP25ybSi-zhz5Y7_X7xqzxvXZ28c',
+    id_path_drive_file_gallery: '1GzLTP36ybSi-ahz6Y8_X8xqzyvXZ39d',
     is_active: false,
     created_at: '2024-02-01T10:30:00Z',
-    updated_at: '2024-02-01T10:30:00Z',
-    id_path_drive_file: '1CzHTP92ybSi-whz2Y4_X4xqztvXZ95z' // Agregar este campo
+    updated_at: '2024-02-01T10:30:00Z'
+  },
+  {
+    ID: '3',
+    name: 'Workshop de Inteligencia Artificial en Medicina',
+    description: 'Taller especializado en aplicaciones de IA en el diagnóstico y tratamiento médico.',
+    location: 'Cusco, Perú',
+    year: 2025,
+    start_date: '2025-03-10',
+    end_date: '2025-03-12',
+    submission_deadline: '2025-02-01',
+    id_path_drive_file: '1HzMTP47ybSi-bhz7Y9_X9xqzzvXZ40e',
+    is_active: true,
+    created_at: '2024-12-01T14:00:00Z',
+    updated_at: '2024-12-01T14:00:00Z'
   }
 ];
 
-
-
 const ScientificEventsPage: React.FC = () => {
-  const navigate = useNavigate(); // Agregar esta línea
+  const navigate = useNavigate();
   const [events, setEvents] = useState<ScientificEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +72,6 @@ const ScientificEventsPage: React.FC = () => {
   useEffect(() => {
     loadEvents();
   }, []);
-
 
   const loadEvents = async () => {
     try {
@@ -90,7 +107,17 @@ const ScientificEventsPage: React.FC = () => {
         // Mock create
         const newEvent: ScientificEvent = {
           ID: Date.now().toString(),
-          ...eventData,
+          name: eventData.name,
+          description: eventData.description,
+          location: eventData.location,
+          year: eventData.year,
+          start_date: eventData.start_date,
+          end_date: eventData.end_date,
+          submission_deadline: eventData.submission_deadline,
+          id_path_drive_file: eventData.id_path_drive_file,
+          id_path_drive_file_poster: eventData.id_path_drive_file_poster,
+          id_path_drive_file_gallery: eventData.id_path_drive_file_gallery,
+          is_active: eventData.is_active,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
@@ -116,12 +143,28 @@ const ScientificEventsPage: React.FC = () => {
       
       if (USE_MOCK_DATA) {
         // Mock update
+        const updatedEvent: ScientificEvent = {
+          ...editingEvent,
+          name: eventData.name,
+          description: eventData.description,
+          location: eventData.location,
+          year: eventData.year,
+          start_date: eventData.start_date,
+          end_date: eventData.end_date,
+          submission_deadline: eventData.submission_deadline,
+          id_path_drive_file: eventData.id_path_drive_file,
+          id_path_drive_file_poster: eventData.id_path_drive_file_poster,
+          id_path_drive_file_gallery: eventData.id_path_drive_file_gallery,
+          is_active: eventData.is_active,
+          updated_at: new Date().toISOString()
+        };
+        
         setEvents(prev => prev.map(event => 
-          event.ID === editingEvent.ID 
-            ? { ...event, ...eventData, updated_at: new Date().toISOString() }
-            : event
+          event.ID === editingEvent.ID ? updatedEvent : event
         ));
       } else {
+        // console.log(editingEvent)
+        // return
         const updatedEvent = await ScientificEventsService.updateEvent(editingEvent.ID, eventData);
         setEvents(prev => prev.map(event => 
           event.ID === editingEvent.ID ? updatedEvent : event
@@ -130,6 +173,7 @@ const ScientificEventsPage: React.FC = () => {
       
       setShowModal(false);
       setEditingEvent(null);
+      loadEvents();
     } catch (err) {
       setError('Error al actualizar el evento');
       console.error('Error updating event:', err);
@@ -138,7 +182,7 @@ const ScientificEventsPage: React.FC = () => {
 
   const handleDeleteEvent = async (id: string) => {
     try {
-      const USE_MOCK_DATA = false; // Cambiar a false cuando la API esté lista
+      const USE_MOCK_DATA = true; // Cambiar a false cuando la API esté lista
       
       if (USE_MOCK_DATA) {
         // Mock delete
@@ -163,16 +207,21 @@ const ScientificEventsPage: React.FC = () => {
     setShowModal(true);
   };
 
-// Modificar handleViewEvent para navegar a Google Drive
-const handleViewEvent = (id: string) => {
-  const event = events.find(e => e.ID === id);
-  
-  if (event && event.id_path_drive_file) {
-    navigate(`/admin/scientific-events/${id}/drive`);
-  } else {
-    alert('Este evento no tiene una carpeta de Google Drive asociada');
-  }
-};
+  // Modificar handleViewEvent para navegar a Google Drive
+  const handleViewEvent = (id: string) => {
+    const event = events.find(e => e.ID === id);
+    
+    if (event && event.id_path_drive_file) {
+      // Opción 1: Navegar a una página interna de gestión de Drive
+      navigate(`/admin/scientific-events/${id}/drive`);
+      
+      // Opción 2: Abrir directamente Google Drive en nueva ventana
+      // const driveUrl = `https://drive.google.com/drive/folders/${event.id_path_drive_file}`;
+      // window.open(driveUrl, '_blank');
+    } else {
+      alert('Este evento no tiene una carpeta de Google Drive asociada');
+    }
+  };
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -205,10 +254,25 @@ const handleViewEvent = (id: string) => {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Gestión de Eventos Científicos</h1>
             <p className="text-gray-600 mt-2">Administra los eventos científicos y conferencias</p>
+            <div className="flex items-center gap-4 mt-3">
+              <div className="bg-white px-3 py-1 rounded-full border">
+                <span className="text-sm text-gray-600">Total: {events.length}</span>
+              </div>
+              <div className="bg-green-100 px-3 py-1 rounded-full border border-green-200">
+                <span className="text-sm text-green-700">
+                  Activos: {events.filter(e => e.is_active).length}
+                </span>
+              </div>
+              <div className="bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
+                <span className="text-sm text-gray-700">
+                  Inactivos: {events.filter(e => !e.is_active).length}
+                </span>
+              </div>
+            </div>
           </div>
           <button
             onClick={openCreateModal}
-            className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 font-medium transition-colors"
+            className="bg-slate-800 hover:bg-slate-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 font-medium transition-colors shadow-sm"
           >
             <Plus size={20} />
             Nuevo Evento
@@ -217,11 +281,11 @@ const handleViewEvent = (id: string) => {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-            {error}
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center justify-between">
+            <span>{error}</span>
             <button 
               onClick={() => setError(null)}
-              className="ml-2 text-red-500 hover:text-red-700"
+              className="text-red-500 hover:text-red-700 text-xl font-bold"
             >
               ×
             </button>
@@ -244,7 +308,7 @@ const handleViewEvent = (id: string) => {
               event={event}
               onEdit={openEditModal}
               onDelete={handleDeleteEvent}
-              onView={handleViewEvent} // Esta función ahora navega a Google Drive
+              onView={handleViewEvent}
             />
           ))}
         </div>
@@ -260,6 +324,17 @@ const handleViewEvent = (id: string) => {
                 : 'Comienza creando tu primer evento científico'
               }
             </p>
+            {(searchTerm || filterStatus !== 'all') && (
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilterStatus('all');
+                }}
+                className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                Limpiar filtros
+              </button>
+            )}
           </div>
         )}
 
