@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { CoInvestigator, CoInvestigatorFromAPI } from './types';
 import { API_URL } from '@/constants/api'
+import { isUserCollaborator } from './utils';
 
 interface CoInvestigatorCardProps {
+  eventID: string;
   coInvestigator: CoInvestigator;
   index: number;
   onRemove: (index: number) => void;
@@ -15,6 +17,7 @@ interface CoInvestigatorCardProps {
 
 const baseUrl = `${API_URL}/api`;
 export const CoInvestigatorCard: React.FC<CoInvestigatorCardProps> = ({
+  eventID,
   coInvestigator,
   index,
   onRemove,
@@ -37,30 +40,47 @@ export const CoInvestigatorCard: React.FC<CoInvestigatorCardProps> = ({
 
   const searchCoInvestigatorByDNI = async () => {
     if (!dniInput.trim()) return;
-
+  
     onUpdate(index, { isLoading: true, notFound: false });
-
+  
     try {
       const response = await fetch(`${baseUrl}/users/dni/search/${dniInput}`);
       
       if (response.ok) {
-        // const userData: CoInvestigatorFromAPI = await response.json();
         const apiResponse = await response.json();
         const userData: CoInvestigatorFromAPI = apiResponse.data;
+        console.log('Datos del investigador:', userData);
         
-        onUpdate(index, {
-          id: userData.ID,
-          fullName: `${userData.first_name} ${userData.last_name}`,
-          email: userData.email,
-          institution: `${userData.investigator.academic_departament.name} - ${userData.investigator.academic_departament.faculty.name}`,
-          academicGrade: userData.investigator.academic_grade.name,
-          investigatorType: userData.investigator.investigator_type.name,
-          isLoading: false,
-          notFound: false
-        });
+        // Usar await en lugar de .then()
+        const isCollab = await isUserCollaborator(userData.ID, eventID);
         
-        toast.success('Investigador encontrado');
+        if (isCollab) {
+          onUpdate(index, {
+            id: userData.ID,
+            fullName: `${userData.first_name} ${userData.last_name}`,
+            email: userData.email,
+            institution: `${userData.investigator.academic_departament.name} - ${userData.investigator.academic_departament.faculty.name}`,
+            academicGrade: userData.investigator.academic_grade.name,
+            investigatorType: userData.investigator.investigator_type.name,
+            isLoading: false,
+            notFound: false
+          });
+          toast.success('Investigador encontrado');
+        } else {
+          // Manejar el caso cuando NO es colaborador
+          onUpdate(index, {
+            isLoading: false,
+            notFound: true,
+            fullName: '',
+            email: '',
+            institution: '',
+            academicGrade: '',
+            investigatorType: ''
+          });
+          toast.error('El investigador no está registrado como colaborador en este evento');
+        }
       } else {
+        // Manejar cuando la respuesta no es OK (usuario no encontrado)
         onUpdate(index, {
           isLoading: false,
           notFound: true,
@@ -76,7 +96,12 @@ export const CoInvestigatorCard: React.FC<CoInvestigatorCardProps> = ({
       console.error('Error buscando investigador:', error);
       onUpdate(index, {
         isLoading: false,
-        notFound: true
+        notFound: true,
+        fullName: '',
+        email: '',
+        institution: '',
+        academicGrade: '',
+        investigatorType: ''
       });
       toast.error('Error al buscar el investigador');
     }

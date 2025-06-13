@@ -2,9 +2,10 @@
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CoInvestigatorCard } from './CoInvestigatorCard';
-import { PostulationFormData, UserFromStorage, CoInvestigator } from './types';
+import { PostulationFormData, UserFromStorage, CoInvestigator, Event } from './types';
 
 interface InvestigatorsStepProps {
+  evento: Event;
   formData: PostulationFormData;
   principalInvestigator: UserFromStorage | null;
   onAddCoInvestigator: () => void;
@@ -14,6 +15,7 @@ interface InvestigatorsStepProps {
 }
 
 export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
+  evento,
   formData,
   principalInvestigator,
   onAddCoInvestigator,
@@ -21,17 +23,22 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
   onUpdateCoInvestigator,
   // onSearchCoInvestigator
 }) => {
-  const handleSearchCoInvestigator = async (dni: string, index: number) => {
-    // Aquí puedes implementar la lógica para buscar al co-investigador por DNI
-    // y actualizar los datos en formData.coInvestigators[index]
-    // Por ejemplo:
-    // const coInvestigatorData = await searchCoInvestigatorByDNI(dni);
-    // onUpdateCoInvestigator(index, coInvestigatorData);
-  }
+  // const [isCollaborator, setIsCollaborator] = useState<boolean | null>(null);
+  // const [isLoading, setIsLoading] = useState(false);
+
+  // useEffect(() => {
+  //   if (principalInvestigator && evento) {
+  //     setIsLoading(true);
+  //     isUserCollaborator(principalInvestigator.ID, evento.id)
+  //       .then(setIsCollaborator)
+  //       .finally(() => setIsLoading(false));
+  //   }
+  // }, [principalInvestigator?.ID, evento?.id]);
   return (
     <div className="space-y-6">
-      {/* Investigador Principal */}
-      <div >{/* quiero darker  */}
+
+      <div >
+
         <h3 className="text-lg font-semibold mb-4">Investigador Principal</h3>
         {principalInvestigator ? (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -105,21 +112,23 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
         )}
       </div>
 
+
       {/* Co-investigadores */}
       <div>
+        
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Co-investigadores</h3>
-          <Button
-            type="button"
-            onClick={onAddCoInvestigator}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            Agregar Co-investigador
-          </Button>
+            <Button
+              type="button"
+              onClick={onAddCoInvestigator}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Agregar Co-investigador
+            </Button>
         </div>
-
         {formData.coInvestigators.map((coInvestigator, index) => (
           <CoInvestigatorCard
+            eventID={evento.id}
             key={index}
             coInvestigator={coInvestigator}
             index={index}
@@ -131,10 +140,13 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
         {formData.coInvestigators.length === 0 && (
           <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
             <p className="text-gray-600">No hay co-investigadores agregados</p>
-            <p className="text-sm text-gray-500 mt-1">Haz clic en "Agregar Co-investigador" para añadir colaboradores</p>
+            <p className="text-sm text-gray-500 mt-1">
+              Haz clic en "Agregar Co-investigador" para añadir colaboradores
+            </p>
           </div>
         )}
       </div>
+
     </div>
   );
 };

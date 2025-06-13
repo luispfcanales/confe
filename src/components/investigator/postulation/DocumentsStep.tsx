@@ -4,9 +4,14 @@ import { Event } from './types';
 
 interface DocumentsStepProps {
   event: Event;
+  isCollaborator: boolean;
+  // formData: PostulationFormData;
 }
 
-export const DocumentsStep: React.FC<DocumentsStepProps> = ({ event }) => {
+export const DocumentsStep: React.FC<DocumentsStepProps> = ({ 
+  event,
+  isCollaborator,
+ }) => {
   const documents = [
     {
       title: 'Formato de póster científico',
@@ -72,7 +77,25 @@ export const DocumentsStep: React.FC<DocumentsStepProps> = ({ event }) => {
           ))}
         </div>
       </div>
-
+      
+      {isCollaborator ? (
+        <div className="text-center py-8 bg-blue-50 border-2 border-blue-200 rounded-lg">
+          <div className="mb-3">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <span className="text-2xl">✅</span>
+            </div>
+          </div>
+          <h4 className="text-lg font-semibold text-blue-800 mb-2">
+            Ya estás inscrito en este evento
+          </h4>
+          <p className="text-blue-600 mb-1">
+            Tu participación ha sido confirmada
+          </p>
+          <p className="text-sm text-blue-500">
+            No necesitas registrarte nuevamente
+          </p>
+        </div>
+      ) : null}
       {/* Instrucciones */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h4 className="font-medium text-blue-800 mb-2">Instrucciones Importantes:</h4>

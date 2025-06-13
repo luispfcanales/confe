@@ -67,7 +67,8 @@ export const EventRegistrationCard: React.FC<EventRegistrationCardProps> = ({ ev
     <>
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
         {/* Header con imagen de fondo */}
-        <div className="relative h-48 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${event.image})` }}>
+        {/* <div className="relative h-48 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(/${event.image})` }}> */}
+        <div className="relative h-48 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url("/CONFERECIS.png")` }}>
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
           <div className="absolute top-4 right-4">
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(event.status)}`}>

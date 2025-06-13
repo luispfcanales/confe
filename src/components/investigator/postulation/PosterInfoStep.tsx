@@ -56,7 +56,7 @@ export const PosterInfoStep: React.FC<PosterInfoStepProps> = ({
             >
               <option value="">Seleccione una línea de investigación</option>
               {researchLines.map((line) => (
-                <option key={line.key} value={line.key.toString()}>
+                <option key={line.key} value={line.value}>
                   {line.value}
                 </option>
               ))}

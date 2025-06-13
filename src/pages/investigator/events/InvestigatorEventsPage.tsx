@@ -167,7 +167,7 @@ const InvestigatorEventsPage: React.FC = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Eventos Científicos</h1>
             <p className="text-gray-600">
-              Bienvenido/a, {user?.first_name}. Aquí puedes ver y registrarte a los eventos científicos disponibles.
+              Bienvenido/a, <b>{user?.first_name}</b>. Aquí puedes ver y registrarte a los eventos científicos disponibles.
             </p>
           </div>
         </div>

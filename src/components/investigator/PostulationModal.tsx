@@ -28,6 +28,7 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
   const [principalInvestigator, setPrincipalInvestigator] = useState<UserFromStorage | null>(null);
   const [researchLines, setResearchLines] = useState<ResearchLine[]>([]);
   const [isLoadingResearchLines, setIsLoadingResearchLines] = useState(false);
+  const [isCollaborator, setIsCollaborator] = useState<boolean>(false);
   
   const [formData, setFormData] = useState<PostulationFormData>({
     posterTitle: '',
@@ -38,6 +39,13 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
     acceptsTerms: false,
     acceptsDataProcessing: false
   });
+
+  // useEffect(() => {
+  //   if (principalInvestigator && event) {
+  //     isUserCollaborator(principalInvestigator.ID, event.id)
+  //       .then(setIsCollaborator)
+  //   }
+  // }, [principalInvestigator?.ID, event?.id]);
 
   // Cargar datos del usuario desde localStorage
   useEffect(() => {
@@ -236,7 +244,7 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
         ...formData,
         coInvestigators: cleanedCoInvestigators
       });
-      console.log('Línea de investigación seleccionada:', formData.researchArea);
+      // console.log('Línea de investigación seleccionada:', formData.researchArea);
       console.log('Co-investigadores válidos:', cleanedCoInvestigators.length);
       
       // Crear FormData para envío con archivos
@@ -301,7 +309,11 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 1:
-        return <DocumentsStep event={event} />;
+        return <DocumentsStep
+                  // formData={formData}
+                  event={event}
+                  isCollaborator={isCollaborator} 
+                />;
       case 2:
         return (
           <PosterInfoStep
@@ -313,7 +325,8 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
         );
       case 3:
         return (
-          <InvestigatorsStep
+          <InvestigatorsStep //event
+            evento={event}
             formData={formData}
             principalInvestigator={principalInvestigator}
             onAddCoInvestigator={addCoInvestigator}
@@ -408,7 +421,8 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
             {currentStep < 4 ? (
               <Button
                 onClick={handleNextStep}
-                disabled={!isFormValid()}
+                //validar si ya es participante del evneto para deshabilitar el botón de siguiente y enviar postulaciòn
+                disabled={ isCollaborator? true : !isFormValid() }
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 Siguiente

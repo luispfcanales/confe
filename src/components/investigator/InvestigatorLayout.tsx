@@ -62,8 +62,8 @@ const InvestigatorLayout: React.FC = () => {
     // <div className="h-screen flex overflow-hidden bg-gray-100">
     <div className="h-screen flex overflow-hidden" style={{
       backgroundColor: '#f5f5f5',
-      backgroundImage: 'radial-gradient(circle,rgb(25, 34, 53) 0.5px, transparent 0.5px)',
-      backgroundSize: '24px 24px'
+      backgroundImage: 'radial-gradient(circle,rgb(25, 34, 53) .9px, transparent 0.5px)',
+      backgroundSize: '12px 12px'
     }}>
 
       {/* Sidebar móvil */}

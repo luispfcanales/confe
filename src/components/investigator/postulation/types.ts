@@ -132,3 +132,16 @@ export interface SubmissionResponse {
   message: string;
   errors?: string[];
 }
+
+export interface HasRoleEventData {
+  event_id: string;
+  has_role: boolean;
+  role: string;
+  user_id: string;
+}
+
+export interface VerificationParticipationEventData {
+  data: HasRoleEventData;
+  message: string;
+  success: boolean;
+}
