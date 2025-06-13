@@ -62,7 +62,7 @@ const InvestigatorEventsPage: React.FC = () => {
       isActive: apiEvent.is_active,
       year: apiEvent.year,
       // Datos calculados - aquí puedes ajustar según necesites
-      deadline: formatDate(apiEvent.start_date), // Por ahora usar la fecha de inicio
+      deadline: formatDate(apiEvent.submission_deadline), // Por ahora usar la fecha de inicio
       maxParticipants: 200, // Valor por defecto
       currentParticipants: 87, // Valor por defecto
       image: "/CONFERICIS.png", // Imagen por defecto
@@ -207,7 +207,7 @@ const InvestigatorEventsPage: React.FC = () => {
           {events.some(event => event.status === 'open') && (
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-              <span>Hay eventos con registro abierto</span>
+              <span><b>Hay eventos con registro abierto</b></span>
             </div>
           )}
         </div>

@@ -19,7 +19,7 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
   onAddCoInvestigator,
   onRemoveCoInvestigator,
   onUpdateCoInvestigator,
-  onSearchCoInvestigator
+  // onSearchCoInvestigator
 }) => {
   return (
     <div className="space-y-6">
@@ -118,7 +118,6 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
             index={index}
             onRemove={onRemoveCoInvestigator}
             onUpdate={onUpdateCoInvestigator}
-            // onSearch={onSearchCoInvestigator}
           />
         ))}
 

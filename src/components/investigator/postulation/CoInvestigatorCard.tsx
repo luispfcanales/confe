@@ -4,6 +4,7 @@ import { Search, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { CoInvestigator, CoInvestigatorFromAPI } from './types';
+import { API_URL } from '@/constants/api'
 
 interface CoInvestigatorCardProps {
   coInvestigator: CoInvestigator;
@@ -12,6 +13,7 @@ interface CoInvestigatorCardProps {
   onUpdate: (index: number, updatedData: Partial<CoInvestigator>) => void;
 }
 
+const baseUrl = `${API_URL}/api`;
 export const CoInvestigatorCard: React.FC<CoInvestigatorCardProps> = ({
   coInvestigator,
   index,
@@ -39,7 +41,7 @@ export const CoInvestigatorCard: React.FC<CoInvestigatorCardProps> = ({
     onUpdate(index, { isLoading: true, notFound: false });
 
     try {
-      const response = await fetch(`http://localhost:3000/api/users/dni/search/${dniInput}`);
+      const response = await fetch(`${baseUrl}/users/dni/search/${dniInput}`);
       
       if (response.ok) {
         // const userData: CoInvestigatorFromAPI = await response.json();

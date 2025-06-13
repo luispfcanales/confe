@@ -72,8 +72,6 @@ export interface CoInvestigator {
 
 export interface PostulationFormData {
   posterTitle: string;
-  abstractText: string;
-  keywords: string;
   researchArea: string;
   coInvestigators: CoInvestigator[];
   posterFile: File | null;

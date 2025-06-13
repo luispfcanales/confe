@@ -12,8 +12,6 @@ import { postulationApi } from '@/services/postulationApi';
 export const usePostulationForm = (isOpen: boolean) => {
   const [formData, setFormData] = useState<PostulationFormData>({
     posterTitle: '',
-    abstractText: '',
-    keywords: '',
     researchArea: '',
     coInvestigators: [],
     posterFile: null,
@@ -164,11 +162,16 @@ export const usePostulationForm = (isOpen: boolean) => {
       
       // Agregar datos del formulario
       submitFormData.append('posterTitle', formData.posterTitle);
-      submitFormData.append('abstractText', formData.abstractText);
-      submitFormData.append('keywords', formData.keywords);
       submitFormData.append('researchArea', formData.researchArea);
-      submitFormData.append('coInvestigators', JSON.stringify(formData.coInvestigators));
-      
+      submitFormData.append(
+        'coInvestigators', 
+        JSON.stringify(
+          formData.coInvestigators.filter(coInvestigator => 
+            coInvestigator.id && coInvestigator.id.trim() !== '' &&
+            coInvestigator.dni && coInvestigator.dni.trim() !== ''
+          )
+        )
+      );
       // Agregar archivos
       if (formData.posterFile) {
         submitFormData.append('posterFile', formData.posterFile);
@@ -177,7 +180,8 @@ export const usePostulationForm = (isOpen: boolean) => {
         submitFormData.append('authorizationFile', formData.authorizationFile);
       }
 
-      await postulationApi.submitPostulation(submitFormData);
+      console.log('FormData antes de enviar:', submitFormData);
+      //await postulationApi.submitPostulation(submitFormData);
       
       toast.success('¡Postulación enviada exitosamente!');
       return true;
@@ -209,8 +213,6 @@ export const usePostulationForm = (isOpen: boolean) => {
   const resetForm = () => {
     setFormData({
       posterTitle: '',
-      abstractText: '',
-      keywords: '',
       researchArea: '',
       coInvestigators: [],
       posterFile: null,

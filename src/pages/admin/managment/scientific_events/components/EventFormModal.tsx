@@ -24,7 +24,7 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
     end_date: '',
     submission_deadline: '',
     id_path_drive_file: '',
-    id_path_drive_file_posters: '',
+    id_path_drive_file_poster: '',
     id_path_drive_file_gallery: '',
     is_active: true
   });
@@ -62,7 +62,7 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
         end_date: formatDateForInput(editingEvent.end_date),
         submission_deadline: formatDateForInput(editingEvent.submission_deadline),
         id_path_drive_file: editingEvent.id_path_drive_file || '',
-        id_path_drive_file_posters: editingEvent.id_path_drive_file_posters || '',
+        id_path_drive_file_poster: editingEvent.id_path_drive_file_poster || '',
         id_path_drive_file_gallery: editingEvent.id_path_drive_file_gallery || '',
         is_active: editingEvent.is_active ?? true
       });
@@ -76,7 +76,7 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
         end_date: '',
         submission_deadline: '',
         id_path_drive_file: '',
-        id_path_drive_file_posters: '',
+        id_path_drive_file_poster: '',
         id_path_drive_file_gallery: '',
         is_active: true
       });
@@ -331,8 +331,8 @@ const EventFormModal: React.FC<EventFormModalProps> = ({
                   </Label>
                   <Input
                     id="id_path_drive_file_poster"
-                    value={formData.id_path_drive_file_posters|| ''}
-                    onChange={(e) => handleInputChange('id_path_drive_file_posters', e.target.value)}
+                    value={formData.id_path_drive_file_poster|| ''}
+                    onChange={(e) => handleInputChange('id_path_drive_file_poster', e.target.value)}
                     placeholder="ID carpeta de pósters"
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   />

@@ -19,71 +19,60 @@ export const PosterInfoStep: React.FC<PosterInfoStepProps> = ({
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold mb-4">Información del Póster</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Título del Póster *
-            </label>
-            <input
-              type="text"
-              value={formData.posterTitle}
-              onChange={(e) => onInputChange('posterTitle', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ingrese el título completo de su investigación"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Línea de Investigación *
-            </label>
-            {isLoadingResearchLines ? (
-              <div className="flex items-center gap-2 p-3 border border-gray-300 rounded-md bg-gray-50">
-                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                <span className="text-sm text-gray-600">Cargando líneas de investigación...</span>
-              </div>
-            ) : (
-              <select
-                value={formData.researchArea}
-                onChange={(e) => onInputChange('researchArea', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Seleccione una línea de investigación</option>
-                {researchLines.map(line => (
-                  <option key={line.key} value={line.value}>
-                    {line.value}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Resumen/Abstract *
-            </label>
-            <textarea
-              value={formData.abstractText}
-              onChange={(e) => onInputChange('abstractText', e.target.value)}
-              rows={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ingrese el resumen de su investigación (máximo 250 palabras)"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Palabras Clave *
-            </label>
-            <input
-              type="text"
-              value={formData.keywords}
-              onChange={(e) => onInputChange('keywords', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ingrese palabras clave separadas por comas (máximo 5)"
-            />
+        
+        {/* Título del Póster */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Título del Póster *
+          </label>
+          <input
+            type="text"
+            placeholder="Ingrese el título completo de su investigación"
+            value={formData.posterTitle}
+            onChange={(e) => onInputChange('posterTitle', e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            maxLength={200}
+          />
+          <div className="text-xs text-gray-500 mt-1">
+            {formData.posterTitle.length}/200 caracteres
           </div>
         </div>
+
+        {/* Línea de Investigación */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Línea de Investigación *
+          </label>
+          {isLoadingResearchLines ? (
+            <div className="flex items-center space-x-2 p-3 border rounded-md">
+              <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+              <span className="text-sm text-gray-600">Cargando líneas de investigación...</span>
+            </div>
+          ) : (
+            <select
+              value={formData.researchArea}
+              onChange={(e) => onInputChange('researchArea', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">Seleccione una línea de investigación</option>
+              {researchLines.map((line) => (
+                <option key={line.key} value={line.key.toString()}>
+                  {line.value}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      </div>
+
+      {/* Información adicional */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 className="font-medium text-blue-800 mb-2">Instrucciones:</h4>
+        <ul className="text-sm text-blue-700 space-y-1">
+          <li>• El título debe ser descriptivo y específico</li>
+          <li>• Selecciona la línea de investigación más apropiada para tu trabajo</li>
+          <li>• Asegúrate de que el título refleje el contenido de tu póster</li>
+        </ul>
       </div>
     </div>
   );

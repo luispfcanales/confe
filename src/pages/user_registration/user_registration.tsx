@@ -1,7 +1,8 @@
 // user_registration.tsx (Componente principal)
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
-import { UserIcon } from 'lucide-react'
+import { UserIcon, ArrowLeft } from 'lucide-react'
 import { UserFormData, FormErrors } from './types'
 import { INITIAL_FORM_DATA } from './constants'
 import { validateForm } from './validation'
@@ -11,6 +12,7 @@ import PersonalInfoSection from './components/PersonalInfoSection'
 import AccessConfigSection from './components/AccessConfigSection'
 
 const UserRegistration = () => {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState<UserFormData>(INITIAL_FORM_DATA)
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -50,8 +52,11 @@ const UserRegistration = () => {
       setFormData(INITIAL_FORM_DATA)
       setErrors({})
       
-      // Opcional: redirigir o mostrar mensaje de éxito
+      // Mostrar mensaje de éxito y redirigir al login
       console.log('Registro exitoso')
+      
+      // Redirigir al login después del registro exitoso
+      navigate('/login')
       
     } catch (error) {
       console.error('Error en el registro:', error)
@@ -66,15 +71,37 @@ const UserRegistration = () => {
     setErrors({})
   }
 
+  const handleGoBack = () => {
+    navigate("/") // Regresa a la página anterior
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    // <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen py-8" style={{
+      backgroundColor: '#ffffff',
+      backgroundImage: 'radial-gradient(circle,rgb(25, 34, 53) 0.5px, transparent 0.5px)',
+      backgroundSize: '12px 12px'
+    }}>
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {/* Header */}
           <div className="bg-blue-600 text-white p-6">
-            <div className="flex items-center space-x-3">
-              <UserIcon className="w-8 h-8" />
-              <h1 className="text-2xl font-bold">Registro de Usuario</h1>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <UserIcon className="w-8 h-8" />
+                <h1 className="text-2xl font-bold">Registro de Usuario</h1>
+              </div>
+              
+              {/* Botón para regresar */}
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={handleGoBack}
+                className="text-white hover:bg-blue-700 flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Regresar</span>
+              </Button>
             </div>
           </div>
 

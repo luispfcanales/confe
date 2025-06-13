@@ -6,6 +6,7 @@ export interface ApiEvent {
     description: string;
     start_date: string;
     end_date: string;
+    submission_deadline: string;
     location: string;
     id_path_drive_file: string;
     id_path_drive_file_posters: string;

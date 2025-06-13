@@ -9,7 +9,6 @@ import { UserRole } from './types/auth';
 // Páginas públicas
 import Home from "./pages/home";
 import PublicationPage from "./pages/publications";
-import Register from "./pages/register/register";
 import UserRegistration from "./pages/user_registration/user_registration";
 
 // Páginas de autenticación
@@ -42,7 +41,6 @@ function App(): JSX.Element {
           {/* Rutas públicas */}
           <Route path="/" element={<Home />} />
           <Route path="/publications" element={<PublicationPage />} />
-          <Route path="/register" element={<Register />} />
           <Route path="/user-registration" element={<UserRegistration />} />
           <Route path="/login" element={<Login />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
