@@ -21,10 +21,17 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
   onUpdateCoInvestigator,
   // onSearchCoInvestigator
 }) => {
+  const handleSearchCoInvestigator = async (dni: string, index: number) => {
+    // Aquí puedes implementar la lógica para buscar al co-investigador por DNI
+    // y actualizar los datos en formData.coInvestigators[index]
+    // Por ejemplo:
+    // const coInvestigatorData = await searchCoInvestigatorByDNI(dni);
+    // onUpdateCoInvestigator(index, coInvestigatorData);
+  }
   return (
     <div className="space-y-6">
       {/* Investigador Principal */}
-      <div>
+      <div >{/* quiero darker  */}
         <h3 className="text-lg font-semibold mb-4">Investigador Principal</h3>
         {principalInvestigator ? (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
