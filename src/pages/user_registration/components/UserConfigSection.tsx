@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { UserFormData, FormErrors, DocumentType, Faculty, AcademicDepartment, InvestigatorType, AcademicGrade, ParticipationType } from '../types'
+import { Input } from "@/components/ui/input"
+import { UserFormData, FormErrors, DocumentType, Faculty, AcademicDepartment, InvestigatorType, AcademicGrade } from '../types'
 import { API_URL } from '@/constants/api'
 import { API_ENDPOINTS } from '../constants'
 
@@ -21,7 +22,6 @@ const UserConfigSection = ({
   // Estados para los datos de los selects
   const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([])
   const [investigatorTypes, setInvestigatorTypes] = useState<InvestigatorType[]>([])
-  const [participationTypes, setParticipationTypes] = useState<ParticipationType[]>([])
   const [departments, setDepartments] = useState<AcademicDepartment[]>([])
   const [faculties, setFaculties] = useState<Faculty[]>([])
   const [academicGrades, setAcademicGrades] = useState<AcademicGrade[]>([])
@@ -42,18 +42,16 @@ const UserConfigSection = ({
           responseDocTypes,
           responseInvestigator,
           responseGrade,
-          responseFaculties,
-          responseParticipation
+          responseFaculties
         ] = await Promise.all([
           fetch(`${API_URL}${API_ENDPOINTS.DOCUMENT_TYPES}`),
           fetch(`${API_URL}${API_ENDPOINTS.INVESTIGATOR_TYPES}`),
           fetch(`${API_URL}${API_ENDPOINTS.ACADEMIC_GRADES}`),
-          fetch(`${API_URL}${API_ENDPOINTS.FACULTIES}`),
-          fetch(`${API_URL}${API_ENDPOINTS.PARTICIPATION_TYPES}`)
+          fetch(`${API_URL}${API_ENDPOINTS.FACULTIES}`)
         ])
 
         if (!responseDocTypes.ok || !responseInvestigator.ok || !responseGrade.ok || 
-            !responseFaculties.ok || !responseParticipation.ok) {
+            !responseFaculties.ok ) {
           throw new Error('Error al obtener los datos iniciales')
         }
 
@@ -61,19 +59,16 @@ const UserConfigSection = ({
           dataDocTypes,
           dataInvestigator,
           dataGrade,
-          dataFaculties,
-          dataParticipation
+          dataFaculties
         ] = await Promise.all([
           responseDocTypes.json(),
           responseInvestigator.json(),
           responseGrade.json(),
-          responseFaculties.json(),
-          responseParticipation.json()
+          responseFaculties.json()
         ])
 
         setDocumentTypes(dataDocTypes.data || [])
         setInvestigatorTypes(dataInvestigator.data || [])
-        setParticipationTypes(dataParticipation.data || [])
         setFaculties(dataFaculties.data || [])
         setAcademicGrades(dataGrade.data || [])
 
@@ -280,25 +275,13 @@ const UserConfigSection = ({
         </div>
 
         <div className="space-y-2">
-          <Label>Tipo de Participante *</Label>
-          <Select
-            value={formData.type_participation}
-            onValueChange={(value) => onInputChange('type_participation', value)}
-          >
-            <SelectTrigger className={errors.type_participation ? 'border-red-500' : ''}>
-              <SelectValue placeholder="Seleccione tipo de participante" />
-            </SelectTrigger>
-            <SelectContent>
-              {participationTypes.map((type) => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.type_participation && (
-            <p className="text-red-500 text-sm">{errors.type_participation}</p>
-          )}
+          <Label htmlFor="url_orcid">URL orcid</Label>
+          <Input
+            id="url_orcid"
+            value={formData.url_orcid}
+            onChange={(e) => onInputChange('url_orcid', e.target.value)}
+            placeholder="https://orcid.org/"
+          />
         </div>
       </div>
 

@@ -30,7 +30,21 @@ export interface AcademicGrade {
 }
 
 export interface ParticipationType {
-  value: string
+  ID: string
+  name: string
+  description: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface ApiResponseParticipationTypes {
+  success: boolean
+  message: string
+  data: {
+    participation_Types: ParticipationType[],
+    count: number
+  }
 }
 
 export interface UserFormData {
@@ -46,9 +60,9 @@ export interface UserFormData {
   confirmPassword: string
   isActive: boolean
   isInternal: boolean
+  url_orcid: string
   id_investigator_types: string
   id_academic_grade: string
-  type_participation: string
   faculty: string
   academic_department: string
 }

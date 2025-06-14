@@ -44,10 +44,6 @@ export const validateForm = (formData: UserFormData): FormErrors => {
     errors.id_investigator_types = 'Tipo de investigador es requerido'
   }
 
-  if (!formData.type_participation) {
-    errors.type_participation = 'Tipo de participante es requerido'
-  }
-
   if (!formData.faculty) {
     errors.faculty = 'Facultad es requerida'
   }

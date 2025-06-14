@@ -13,9 +13,9 @@ export const INITIAL_FORM_DATA: UserFormData = {
   confirmPassword: '',
   isActive: true,
   isInternal: true,
+  url_orcid: '',
   id_investigator_types: '',
   id_academic_grade: '',
-  type_participation: '',
   faculty: '',
   academic_department: ''
 }
@@ -27,6 +27,6 @@ export const API_ENDPOINTS = {
   INVESTIGATOR_TYPES: '/api/investigator-types',
   ACADEMIC_GRADES: '/api/academic-grades',
   FACULTIES: '/api/faculties',
-  PARTICIPATION_TYPES: '/api/general/participation-types',
+  PARTICIPATION_TYPES: '/api/participation-types',
   CREATE_USER: '/api/users/create-investigator'
 } as const

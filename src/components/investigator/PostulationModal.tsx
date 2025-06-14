@@ -312,7 +312,7 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
         return <DocumentsStep
                   // formData={formData}
                   event={event}
-                  isCollaborator={isCollaborator} 
+                  isCollaborator={true}//isCollaborator
                 />;
       case 2:
         return (

@@ -17,6 +17,7 @@ export const registerUser = async (formData: UserFormData): Promise<void> => {
       sex: formData.sex,
       password: formData.password,
       is_internal: formData.isInternal,
+      phone: formData.phoneNumber,
       
       // IDs de referencia (asegurate que estos campos existan en tu UserFormData)
       document_type_id: formData.documentTypeId,
@@ -24,16 +25,12 @@ export const registerUser = async (formData: UserFormData): Promise<void> => {
       academic_grade_id: formData.id_academic_grade,
       
       // Campos adicionales
-      type_participation: formData.type_participation,
       academic_departament_id: formData.academic_department,
-      
-      // ❌ Removido: faculty_id no está en el modelo de Go
-      // faculty_id: formData.faculty,
+      url_orcid: formData.url_orcid,
     }
 
     // Validar que todos los campos requeridos estén presentes
     console.log('Datos a enviar:', userData)
-
     const response = await fetch(`${API_URL}${API_ENDPOINTS.CREATE_USER}`, {
       method: 'POST',
       headers: {
@@ -49,8 +46,16 @@ export const registerUser = async (formData: UserFormData): Promise<void> => {
     }
 
     const result = await response.json()
-    toast.success('Usuario registrado exitosamente')
-    console.log('Usuario registrado:', result)
+    toast.success('Usuario registrado exitosamente', {
+      duration: 3000, // 3 segundos
+      className: 'bg-green-500 text-white font-bold border-0',
+      position: 'top-right',
+      description: 'El usuario puede ahora iniciar sesión',
+      action: {
+        label: 'OK',
+        onClick: () => console.log('Toast cerrado')
+      }
+    })
     
     return result
   } catch (error) {

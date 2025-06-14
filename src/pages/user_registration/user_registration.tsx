@@ -74,14 +74,16 @@ const UserRegistration = () => {
   const handleGoBack = () => {
     navigate("/") // Regresa a la página anterior
   }
-
+// <div className="min-h-screen bg-gray-500 py-8">
   return (
     // <div className="min-h-screen bg-gray-50 py-8">
+    
     <div className="min-h-screen py-8" style={{
-      backgroundColor: '#ffffff',
-      backgroundImage: 'radial-gradient(circle,rgb(25, 34, 53) 0.5px, transparent 0.5px)',
+      backgroundColor: 'white',
+      backgroundImage: 'radial-gradient(circle,rgb(25, 34, 53) 0.9px, transparent 0.9px)',
       backgroundSize: '12px 12px'
     }}>
+    
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {/* Header */}
