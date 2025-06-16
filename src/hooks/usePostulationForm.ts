@@ -13,8 +13,12 @@ export const usePostulationForm = (isOpen: boolean) => {
   const [formData, setFormData] = useState<PostulationFormData>({
     posterTitle: '',
     researchArea: '',
+    investigatorPrincipal: '',
+    investigatorPrincipalParticipationTypeID: '',
+    idUploadDirFile: '',
     coInvestigators: [],
     posterFile: null,
+    posterFilePPT: null,
     authorizationFile: null,
     acceptsTerms: false,
     acceptsDataProcessing: false
@@ -95,6 +99,7 @@ export const usePostulationForm = (isOpen: boolean) => {
           institution: '',
           academicGrade: '',
           investigatorType: '',
+          participant_type_id: '', // Agregada la propiedad faltante
           isLoading: false,
           notFound: false
         }
@@ -134,6 +139,7 @@ export const usePostulationForm = (isOpen: boolean) => {
         institution: `${userData.investigator.academic_departament.name} - ${userData.investigator.academic_departament.faculty.name}`,
         academicGrade: userData.investigator.academic_grade.name,
         investigatorType: userData.investigator.investigator_type.name,
+        participant_type_id: '', // Mantener vacío hasta que el usuario seleccione
         isLoading: false,
         notFound: false
       });
@@ -147,7 +153,8 @@ export const usePostulationForm = (isOpen: boolean) => {
         email: '',
         institution: '',
         academicGrade: '',
-        investigatorType: ''
+        investigatorType: '',
+        participant_type_id: ''
       });
       toast.error('Investigador no encontrado');
     }
@@ -157,24 +164,41 @@ export const usePostulationForm = (isOpen: boolean) => {
   const submitPostulation = async () => {
     setIsSubmitting(true);
     try {
+      // Filtrar co-investigadores válidos antes del envío
+      const validCoInvestigators = formData.coInvestigators.filter(coInvestigator => 
+        coInvestigator.id && 
+        coInvestigator.id.trim() !== '' &&
+        coInvestigator.dni && 
+        coInvestigator.dni.trim() !== '' &&
+        coInvestigator.fullName && 
+        coInvestigator.fullName.trim() !== '' &&
+        coInvestigator.email && 
+        coInvestigator.email.trim() !== '' &&
+        coInvestigator.participant_type_id &&
+        coInvestigator.participant_type_id.trim() !== '' &&
+        !coInvestigator.notFound &&
+        !coInvestigator.isLoading
+      );
+
       // Crear FormData para archivos (usando el tipo nativo de JavaScript)
       const submitFormData = new globalThis.FormData();
       
       // Agregar datos del formulario
       submitFormData.append('posterTitle', formData.posterTitle);
       submitFormData.append('researchArea', formData.researchArea);
-      submitFormData.append(
-        'coInvestigators', 
-        JSON.stringify(
-          formData.coInvestigators.filter(coInvestigator => 
-            coInvestigator.id && coInvestigator.id.trim() !== '' &&
-            coInvestigator.dni && coInvestigator.dni.trim() !== ''
-          )
-        )
-      );
+      submitFormData.append('investigatorPrincipal', formData.investigatorPrincipal);
+      submitFormData.append('investigatorPrincipalParticipationTypeID', formData.investigatorPrincipalParticipationTypeID);
+      submitFormData.append('idUploadDirFile', formData.idUploadDirFile);
+      submitFormData.append('coInvestigators', JSON.stringify(validCoInvestigators));
+      submitFormData.append('acceptsTerms', formData.acceptsTerms.toString());
+      submitFormData.append('acceptsDataProcessing', formData.acceptsDataProcessing.toString());
+
       // Agregar archivos
       if (formData.posterFile) {
         submitFormData.append('posterFile', formData.posterFile);
+      }
+      if (formData.posterFilePPT) {
+        submitFormData.append('posterFilePPT', formData.posterFilePPT);
       }
       if (formData.authorizationFile) {
         submitFormData.append('authorizationFile', formData.authorizationFile);
@@ -197,12 +221,30 @@ export const usePostulationForm = (isOpen: boolean) => {
   // Validar formulario
   const isFormValid = (currentStep: number) => {
     switch (currentStep) {
+      case 1:
+        return true; // Solo lectura de documentos
       case 2:
         return formData.posterTitle.trim() && formData.researchArea;
+      case 3:
+        // Validar investigador principal y co-investigadores
+        const principalHasParticipationType = 
+          formData.investigatorPrincipalParticipationTypeID && 
+          formData.investigatorPrincipalParticipationTypeID.trim() !== '';
+        
+        const hasAtLeastOneCoInvestigator = formData.coInvestigators.length > 0;
+        
+        const allCoInvestigatorsHaveParticipationType = formData.coInvestigators.every(
+          coInv => coInv.participant_type_id && coInv.participant_type_id.trim() !== ''
+        );
+        
+        return principalHasParticipationType && 
+               hasAtLeastOneCoInvestigator && 
+               allCoInvestigatorsHaveParticipationType;
       case 4:
         return formData.acceptsTerms && 
                formData.acceptsDataProcessing && 
                formData.posterFile && 
+               formData.posterFilePPT &&
                formData.authorizationFile;
       default:
         return true;
@@ -214,8 +256,12 @@ export const usePostulationForm = (isOpen: boolean) => {
     setFormData({
       posterTitle: '',
       researchArea: '',
+      investigatorPrincipal: '',
+      investigatorPrincipalParticipationTypeID: '',
+      idUploadDirFile: '',
       coInvestigators: [],
       posterFile: null,
+      posterFilePPT: null,
       authorizationFile: null,
       acceptsTerms: false,
       acceptsDataProcessing: false

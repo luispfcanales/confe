@@ -39,18 +39,18 @@ const InvestigatorEventsPage: React.FC = () => {
       });
     };
 
-    const formatDateRange = (start: string, end: string) => {
-      const startFormatted = new Date(start).toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: 'long'
-      });
-      const endFormatted = new Date(end).toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      });
-      return `${startFormatted} - ${endFormatted}`;
-    };
+    // const formatDateRange = (start: string, end: string) => {
+    //   const startFormatted = new Date(start).toLocaleDateString('es-ES', {
+    //     day: '2-digit',
+    //     month: 'long'
+    //   });
+    //   const endFormatted = new Date(end).toLocaleDateString('es-ES', {
+    //     day: '2-digit',
+    //     month: 'long',
+    //     year: 'numeric'
+    //   });
+    //   return `${startFormatted} - ${endFormatted}`;
+    // };
     
     return {
       ID: apiEvent.ID,

@@ -11,7 +11,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Eye, EyeOff, User as UserIcon } from 'lucide-react';
 import { UserService } from '../services/userService';
 import { toast } from 'sonner';
-import { API_URL } from '@/constants/api';
 
 // Tipos adicionales para los nuevos campos
 interface ResearcherType {

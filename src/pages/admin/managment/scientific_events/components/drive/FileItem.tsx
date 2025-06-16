@@ -23,12 +23,12 @@ export const FileItem: React.FC<FileItemProps> = ({
   const isFolder = GoogleDriveService.isFolder(file);
   const previewUrl = GoogleDriveService.getPreviewUrl(file);
 
-  const handleClick = (e: React.MouseEvent) => {
-    // Solo navegar si se hace clic en la carpeta, no en los controles
-    if (isFolder && e.currentTarget === e.target) {
-      onFolderClick(file);
-    }
-  };
+  // const handleClick = (e: React.MouseEvent) => {
+  //   // Solo navegar si se hace clic en la carpeta, no en los controles
+  //   if (isFolder && e.currentTarget === e.target) {
+  //     onFolderClick(file);
+  //   }
+  // };
 
   const handleCardClick = (e: React.MouseEvent) => {
     // Verificar que no se haya hecho clic en el dropdown
