@@ -1,7 +1,8 @@
 // src/components/investigator/postulation/utils.ts
-import { PostulationFormData,VerificationParticipationEventData } from './types';
+import { PostulationFormData,VerificationParticipationEventData, ParticipationType } from './types';
 import { POSTULATION_CONFIG } from './config';
 import { API_URL } from '@/constants/api'
+import { showToast } from '@/utils/toast';
 
 export const validateForm = {
   // Validar paso específico
@@ -156,12 +157,17 @@ export const isUserCollaborator = async (userId: string, eventId: string): Promi
         // 'Authorization': `Bearer ${token}`, // Si necesitas autenticación
       },
     });
+    
 
     if (!response.ok) {
       // Manejar diferentes códigos de error HTTP
       switch (response.status) {
         case 404:
-          console.warn(`Usuario ${userId} no encontrado para el evento ${eventId}`);
+          showToast.error({
+            title: 'Investigador no encontrado',
+            description: 'No existe investigador registrado.',
+            duration: 4000
+          });
           break;
         case 403:
           console.error('No tienes permisos para verificar este usuario');
@@ -176,7 +182,6 @@ export const isUserCollaborator = async (userId: string, eventId: string): Promi
     }
 
     const data: VerificationParticipationEventData = await response.json();
-    
     // Validar estructura de respuesta
     if (!data || typeof data.success !== 'boolean') {
       console.error('Respuesta del servidor con formato inválido:', data);
@@ -193,4 +198,30 @@ export const isUserCollaborator = async (userId: string, eventId: string): Promi
     }
     return null;
   }
+};
+
+
+export const fetchParticipationTypes = async (): Promise<ParticipationType[]> => {
+  try {
+    const response = await fetch(`${API_URL}/api/participation-types`);
+    const data = await response.json();
+    
+    if (data.success && data.data?.participation_types) {
+      return data.data.participation_types.filter((type: ParticipationType) => type.is_active);
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching participation types:', error);
+    showToast.error({
+      title: 'Error',
+      description: 'No se pudieron cargar los tipos de participación',
+      duration: 3000
+    });
+    return [];
+  }
+};
+
+export const getParticipationTypeName = (types: ParticipationType[], id: string): string => {
+  const type = types.find(t => t.ID === id);
+  return type?.name || 'No especificado';
 };

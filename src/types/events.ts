@@ -9,7 +9,7 @@ export interface ApiEvent {
     submission_deadline: string;
     location: string;
     id_path_drive_file: string;
-    id_path_drive_file_posters: string;
+    id_path_drive_file_poster: string;
     id_path_drive_file_gallery: string;
     is_active: boolean;
     created_at: string;
@@ -37,6 +37,9 @@ export interface ApiEvent {
     maxParticipants: number;
     currentParticipants: number;
     image: string;
+    id_path_drive_file: string ;
+    id_path_drive_file_posters: string;
+    id_path_drive_file_gallery: string;
     categories: string[];
     requirements: Array<{
       text: string;

@@ -4,6 +4,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import { EventRegistrationCard } from '@/components/investigator/EventRegistrationCard';
 import { Calendar, Users, MapPin, Loader2, AlertCircle } from 'lucide-react';
 import { ApiEvent, ApiResponse, EventForComponent } from '@/types/events';
+import { API_URL } from '@/constants/api'
 
 const InvestigatorEventsPage: React.FC = () => {
   const { user } = useAuth();
@@ -50,7 +51,7 @@ const InvestigatorEventsPage: React.FC = () => {
       });
       return `${startFormatted} - ${endFormatted}`;
     };
-
+    
     return {
       ID: apiEvent.ID,
       title: apiEvent.name,
@@ -63,9 +64,12 @@ const InvestigatorEventsPage: React.FC = () => {
       year: apiEvent.year,
       // Datos calculados - aquí puedes ajustar según necesites
       deadline: formatDate(apiEvent.submission_deadline), // Por ahora usar la fecha de inicio
-      maxParticipants: 200, // Valor por defecto
-      currentParticipants: 87, // Valor por defecto
+      maxParticipants: 30, // Valor por defecto
+      currentParticipants: 2, // Valor por defecto
       image: "/CONFERICIS.png", // Imagen por defecto
+      id_path_drive_file: apiEvent.id_path_drive_file,
+      id_path_drive_file_posters: apiEvent.id_path_drive_file_poster,
+      id_path_drive_file_gallery: apiEvent.id_path_drive_file_gallery,
       categories: ["Investigación Científica", "Impacto Social", "Académico"], // Por defecto
       requirements: [
         {
@@ -101,7 +105,7 @@ const InvestigatorEventsPage: React.FC = () => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:3000/api/scientific-events');
+        const response = await fetch(`${API_URL}/api/scientific-events`);
         
         if (!response.ok) {
           throw new Error('Error al cargar los eventos');
@@ -112,6 +116,7 @@ const InvestigatorEventsPage: React.FC = () => {
         if (data.success && data.data) {
           const transformedEvents = data.data.map(transformApiEventToComponent);
           setEvents(transformedEvents);
+          console.log(events)
         } else {
           throw new Error('Formato de respuesta inválido');
         }
@@ -224,7 +229,8 @@ const InvestigatorEventsPage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
+          // <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {events.map((event) => (
               <EventRegistrationCard key={event.ID} event={event} />
             ))}

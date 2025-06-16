@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { X, CheckCircle } from 'lucide-react';
+import { X, CheckCircle, Loader } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 
 // Importar tipos y componentes
 import { 
@@ -11,12 +10,15 @@ import {
   ResearchLine,
   ResearchLinesResponse,
   CoInvestigator,
-  CoInvestigatorFromAPI
+  ParticipationType
 } from './postulation/types';
 import { DocumentsStep } from './postulation/DocumentsStep';
 import { PosterInfoStep } from './postulation/PosterInfoStep';
 import { InvestigatorsStep } from './postulation/InvestigatorsStep';
 import { FilesStep } from './postulation/FilesStep';
+import { showToast } from '@/utils/toast';
+import { API_URL } from '@/constants/api';
+import { fetchParticipationTypes, isUserCollaborator } from './postulation/utils';
 
 export const PostulationModal: React.FC<PostulationModalProps> = ({
   event,
@@ -26,13 +28,20 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [principalInvestigator, setPrincipalInvestigator] = useState<UserFromStorage | null>(null);
+  const [participationTypes, setParticipationTypes] = useState<ParticipationType[]>([]);
   const [researchLines, setResearchLines] = useState<ResearchLine[]>([]);
   const [isLoadingResearchLines, setIsLoadingResearchLines] = useState(false);
-  const [isCollaborator, setIsCollaborator] = useState<boolean>(false);
+  
+  // Cambios principales: estado de carga y valor inicial null
+  const [isCollaborator, setIsCollaborator] = useState<boolean | null>(null);
+  const [isCheckingCollaborator, setIsCheckingCollaborator] = useState(false);
   
   const [formData, setFormData] = useState<PostulationFormData>({
     posterTitle: '',
     researchArea: '',
+    investigatorPrincipal: '',
+    investigatorPrincipalParticipationTypeID: '',
+    idUploadDirFile: '',
     coInvestigators: [],
     posterFile: null,
     authorizationFile: null,
@@ -40,12 +49,44 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
     acceptsDataProcessing: false
   });
 
-  // useEffect(() => {
-  //   if (principalInvestigator && event) {
-  //     isUserCollaborator(principalInvestigator.ID, event.id)
-  //       .then(setIsCollaborator)
-  //   }
-  // }, [principalInvestigator?.ID, event?.id]);
+  // Este efecto ahora se maneja en el efecto de apertura del modal
+  // Se mantiene comentado como referencia pero ya no es necesario
+  /*
+  useEffect(() => {
+    const checkCollaboratorStatus = async () => {
+      if (principalInvestigator && event) {
+        setIsCheckingCollaborator(true);
+        try {
+          const response = await isUserCollaborator(principalInvestigator.ID, event.id);
+          setIsCollaborator(!!response?.data.has_role);
+        } catch (error) {
+          console.error('Error checking collaborator status:', error);
+          // En caso de error, permitir continuar (asumir que no es colaborador)
+          setIsCollaborator(false);
+        } finally {
+          setIsCheckingCollaborator(false);
+        }
+      }
+    };
+
+    checkCollaboratorStatus();
+  }, [principalInvestigator?.ID, event?.id]);
+  */
+
+  useEffect(() => {
+    const loadTypes = async () => {
+      try {
+        const types = await fetchParticipationTypes();
+        setParticipationTypes(types);
+      } catch (error) {
+        console.error('Error loading participation types:', error);
+      }
+    };
+    
+    if (isOpen) {
+      loadTypes();
+    }
+  }, [isOpen]);
 
   // Cargar datos del usuario desde localStorage
   useEffect(() => {
@@ -57,8 +98,12 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
           setPrincipalInvestigator(userData);
         }
       } catch (error) {
-        console.error('Error al cargar datos del usuario:', error);
-        toast.error('Error al cargar los datos del usuario');
+        console.error('Error al cargar datos de Sesion:', error);
+        showToast.error({
+          title: 'Error',
+          description: 'No se pudieron cargar los datos del usuario',
+          duration: 3000
+        });
       }
     }
   }, [isOpen]);
@@ -68,22 +113,33 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
     const loadResearchLines = async () => {
       setIsLoadingResearchLines(true);
       try {
-        const response = await fetch('http://localhost:3000/api/general/line-investigation');
-        
+        const response = await fetch(`${API_URL}/api/general/line-investigation`);
         if (response.ok) {
           const data: ResearchLinesResponse = await response.json();
           
           if (data.success && data.data) {
             setResearchLines(data.data);
           } else {
-            toast.error('Error al cargar las líneas de investigación');
+            showToast.error({
+              title: 'Error',
+              description: 'No se pudieron cargar las líneas de investigación',
+              duration: 3000
+            });
           }
         } else {
-          toast.error('Error al conectar con el servidor para cargar las líneas de investigación');
+          showToast.error({
+            title: 'Error',
+            description: 'No se pudieron cargar las líneas de investigación',
+            duration: 3000
+          });
         }
       } catch (error) {
         console.error('Error cargando líneas de investigación:', error);
-        toast.error('Error al cargar las líneas de investigación');
+        showToast.error({
+          title: 'Error',
+          description: 'Error al cargar las líneas de investigación',
+          duration: 3000
+        });
       } finally {
         setIsLoadingResearchLines(false);
       }
@@ -93,6 +149,34 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
       loadResearchLines();
     }
   }, [isOpen]);
+
+  // Efecto para resetear estados y re-verificar cuando se abre el modal
+  useEffect(() => {
+    if (isOpen) {
+      // Resetear estados al abrir
+      setIsCollaborator(null);
+      setIsCheckingCollaborator(false);
+      setCurrentStep(1);
+      
+      // Re-verificar el estado de colaborador cuando se abre el modal
+      if (principalInvestigator && event) {
+        const checkCollaboratorStatus = async () => {
+          setIsCheckingCollaborator(true);
+          try {
+            const response = await isUserCollaborator(principalInvestigator.ID, event.id);
+            setIsCollaborator(!!response?.data.has_role);
+          } catch (error) {
+            console.error('Error checking collaborator status:', error);
+            setIsCollaborator(false);
+          } finally {
+            setIsCheckingCollaborator(false);
+          }
+        };
+        
+        checkCollaboratorStatus();
+      }
+    }
+  }, [isOpen, principalInvestigator?.ID, event?.id]);
 
   if (!isOpen || !event) return null;
 
@@ -122,6 +206,7 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
           institution: '',
           academicGrade: '',
           investigatorType: '',
+          participant_type_id: "",
           isLoading: false,
           notFound: false
         },
@@ -144,52 +229,6 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
       ...updatedData
     };
     setFormData(prev => ({ ...prev, coInvestigators: updatedCoInvestigators }));
-  };
-
-  // Buscar co-investigador por DNI
-  const searchCoInvestigatorByDNI = async (dni: string, index: number) => {
-    if (!dni.trim()) return;
-
-    updateCoInvestigator(index, { isLoading: true, notFound: false });
-
-    try {
-      const response = await fetch(`http://localhost:3000/api/users/search/dni/${dni}`);
-      
-      if (response.ok) {
-        const userData: CoInvestigatorFromAPI = await response.json();
-        
-        updateCoInvestigator(index, {
-          id: userData.ID,
-          fullName: `${userData.first_name} ${userData.last_name}`,
-          email: userData.email,
-          institution: `${userData.investigator.academic_departament.name} - ${userData.investigator.academic_departament.faculty.name}`,
-          academicGrade: userData.investigator.academic_grade.name,
-          investigatorType: userData.investigator.investigator_type.name,
-          isLoading: false,
-          notFound: false
-        });
-        
-        toast.success('Investigador encontrado');
-      } else {
-        updateCoInvestigator(index, {
-          isLoading: false,
-          notFound: true,
-          fullName: '',
-          email: '',
-          institution: '',
-          academicGrade: '',
-          investigatorType: ''
-        });
-        toast.error('Investigador no encontrado');
-      }
-    } catch (error) {
-      console.error('Error buscando investigador:', error);
-      updateCoInvestigator(index, {
-        isLoading: false,
-        notFound: true
-      });
-      toast.error('Error al buscar el investigador');
-    }
   };
 
   const handleNextStep = () => {
@@ -216,7 +255,12 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
           ...prev,
           coInvestigators: cleanedCoInvestigators
         }));
-        toast.info('Se eliminaron los co-investigadores sin datos');
+        showToast.info({
+          title: 'Info',
+          description: 'Se eliminaron los co-investigadores sin datos',
+          duration: 3000
+        });
+        return;
       }
     }
     
@@ -239,22 +283,18 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
         !coInvestigator.notFound &&
         !coInvestigator.isLoading
       );
-
-      console.log('Datos del formulario:', {
-        ...formData,
-        coInvestigators: cleanedCoInvestigators
-      });
-      // console.log('Línea de investigación seleccionada:', formData.researchArea);
-      console.log('Co-investigadores válidos:', cleanedCoInvestigators.length);
-      
+  
       // Crear FormData para envío con archivos
       const submitFormData = new globalThis.FormData();
       
       // Agregar datos del formulario
       submitFormData.append('eventId', event.id);
       submitFormData.append('posterTitle', formData.posterTitle);
-      submitFormData.append('researchArea', formData.researchArea);
+      submitFormData.append('research_line', formData.researchArea);
+      submitFormData.append('id_path_drive_file_posters', event.id_path_drive_file_posters);
       submitFormData.append('coInvestigators', JSON.stringify(cleanedCoInvestigators));
+      submitFormData.append('acceptsTerms', formData.acceptsTerms.toString());
+      submitFormData.append('acceptsDataProcessing', formData.acceptsDataProcessing.toString());
       
       // Agregar archivos
       if (formData.posterFile) {
@@ -263,16 +303,36 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
       if (formData.authorizationFile) {
         submitFormData.append('authorizationFile', formData.authorizationFile);
       }
-
-      // Simular envío al backend
-      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      toast.success('¡Postulación enviada exitosamente!');
+      // Hacer el POST real
+      const response = await fetch(`${API_URL}/api/investigators/register/${principalInvestigator?.investigator_id}/poster-collaborators`, {
+        method: 'POST',
+        body: submitFormData,
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+  
+      const result = await response.json();
+      console.log('Respuesta del servidor:', result);
+      
+      // IMPORTANTE: Actualizar el estado para reflejar que ahora es colaborador
+      setIsCollaborator(true);
+      
+      showToast.success({
+        title: 'Datos registrados',
+        description: 'Se realizó el registro al evento.',
+        duration: 4000
+      });
       
       // Resetear formulario
       setFormData({
         posterTitle: '',
         researchArea: '',
+        investigatorPrincipal: '',
+        investigatorPrincipalParticipationTypeID: '',
+        idUploadDirFile: '',
         coInvestigators: [],
         posterFile: null,
         authorizationFile: null,
@@ -282,7 +342,12 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
       setCurrentStep(1);
       onClose();
     } catch (error) {
-      toast.error('Error al enviar la postulación');
+      console.error('Error al enviar:', error);
+      showToast.error({
+        title: 'Error',
+        description: 'Error al enviar la postulación',
+        duration: 3000
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -295,7 +360,23 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
       case 2:
         return formData.posterTitle.trim() && formData.researchArea;
       case 3:
-        return true; // Investigador principal es automático
+        // Validar:
+        // 1. Que el investigador principal tenga tipo de participación
+        // 2. Que haya al menos un co-investigador
+        // 3. Que todos los co-investigadores tengan tipo de participación
+        const principalHasParticipationType = 
+          formData.investigatorPrincipalParticipationTypeID && 
+          formData.investigatorPrincipalParticipationTypeID.trim() !== '';
+        
+        const hasAtLeastOneCoInvestigator = formData.coInvestigators.length > 0;
+        
+        const allCoInvestigatorsHaveParticipationType = formData.coInvestigators.every(
+          coInv => coInv.participant_type_id && coInv.participant_type_id.trim() !== ''
+        );
+        
+        return principalHasParticipationType && 
+               hasAtLeastOneCoInvestigator && 
+               allCoInvestigatorsHaveParticipationType;
       case 4:
         return formData.acceptsTerms && 
                formData.acceptsDataProcessing && 
@@ -306,14 +387,29 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
     }
   };
 
+  // Función para determinar si se debe mostrar el botón de siguiente/enviar deshabilitado
+  const shouldDisableNextButton = () => {
+    // Si aún se está verificando el estado de colaborador, deshabilitar
+    if (isCheckingCollaborator) return true;
+    
+    // Si ya es colaborador, deshabilitar
+    if (isCollaborator === true) return true;
+    
+    // Si el formulario no es válido, deshabilitar
+    if (!isFormValid()) return true;
+    
+    return false;
+  };
+
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 1:
-        return <DocumentsStep
-                  // formData={formData}
-                  event={event}
-                  isCollaborator={true}//isCollaborator
-                />;
+        return (
+          <DocumentsStep
+            event={event}
+            isCollaborator={isCollaborator ?? false}
+          />
+        );
       case 2:
         return (
           <PosterInfoStep
@@ -325,14 +421,15 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
         );
       case 3:
         return (
-          <InvestigatorsStep //event
+          <InvestigatorsStep
             evento={event}
             formData={formData}
+            participationTypes={participationTypes}
             principalInvestigator={principalInvestigator}
             onAddCoInvestigator={addCoInvestigator}
             onRemoveCoInvestigator={removeCoInvestigator}
             onUpdateCoInvestigator={updateCoInvestigator}
-            onSearchCoInvestigator={searchCoInvestigatorByDNI}
+            onInputChange={handleInputChange}
           />
         );
       case 4:
@@ -406,6 +503,12 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
         <div className="flex items-center justify-between p-6 border-t bg-gray-50">
           <div className="text-sm text-gray-600">
             Paso {currentStep} de 4
+            {isCheckingCollaborator && (
+              <span className="ml-2 flex items-center">
+                <Loader className="h-3 w-3 animate-spin mr-1" />
+                Verificando...
+              </span>
+            )}
           </div>
           
           <div className="flex gap-3">
@@ -421,19 +524,32 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
             {currentStep < 4 ? (
               <Button
                 onClick={handleNextStep}
-                //validar si ya es participante del evneto para deshabilitar el botón de siguiente y enviar postulaciòn
-                disabled={ isCollaborator? true : !isFormValid() }
+                disabled={shouldDisableNextButton()}
                 className="bg-blue-600 hover:bg-blue-700"
               >
-                Siguiente
+                {isCheckingCollaborator ? (
+                  <>
+                    <Loader className="h-4 w-4 animate-spin mr-2" />
+                    Verificando...
+                  </>
+                ) : (
+                  'Siguiente'
+                )}
               </Button>
             ) : (
               <Button
                 onClick={handleSubmit}
-                disabled={!isFormValid() || isSubmitting}
+                disabled={shouldDisableNextButton() || isSubmitting}
                 className="bg-green-600 hover:bg-green-700"
               >
-                {isSubmitting ? 'Enviando...' : 'Enviar Postulación'}
+                {isSubmitting ? (
+                  <>
+                    <Loader className="h-4 w-4 animate-spin mr-2" />
+                    Enviando...
+                  </>
+                ) : (
+                  'Enviar Postulación'
+                )}
               </Button>
             )}
           </div>

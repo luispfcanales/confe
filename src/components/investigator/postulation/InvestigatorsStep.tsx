@@ -3,19 +3,21 @@ import { useState } from 'react';
 import { Loader2, Search, UserPlus, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CoInvestigatorCard } from './CoInvestigatorCard';
-import { PostulationFormData, UserFromStorage, CoInvestigator, Event, CoInvestigatorFromAPI } from './types';
-import { toast } from 'sonner';
+import { PostulationFormData, UserFromStorage, CoInvestigator, Event, CoInvestigatorFromAPI, ParticipationType } from './types';
+import { showToast } from '@/utils/toast';
 import { API_URL } from '@/constants/api';
 import { isUserCollaborator } from './utils';
 
 interface InvestigatorsStepProps {
   evento: Event;
   formData: PostulationFormData;
+  participationTypes: ParticipationType[];
   principalInvestigator: UserFromStorage | null;
   onAddCoInvestigator: () => void;
   onRemoveCoInvestigator: (index: number) => void;
   onUpdateCoInvestigator: (index: number, updatedData: Partial<CoInvestigator>) => void;
-  onSearchCoInvestigator: (dni: string, index: number) => Promise<void>;
+  // onSearchCoInvestigator: (dni: string, index: number) => Promise<void>;
+  onInputChange: (field: string, value: any) => void; // AGREGADO: Esta prop es necesaria
 }
 
 const baseUrl = `${API_URL}/api`;
@@ -23,9 +25,11 @@ const baseUrl = `${API_URL}/api`;
 export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
   evento,
   formData,
+  participationTypes,
   principalInvestigator,
   onRemoveCoInvestigator,
   onUpdateCoInvestigator,
+  onInputChange, // AGREGADO: Recibimos la función
 }) => {
   const [searchDNI, setSearchDNI] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -34,7 +38,14 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
   // Función para buscar investigador
   const handleSearchInvestigator = async () => {
     if (!searchDNI.trim()) {
-      toast.error('Por favor ingrese un DNI válido');
+      return;
+    }
+    if (searchDNI === principalInvestigator?.identity_document) {
+      showToast.error({
+        title: 'Error al agregar co-investigador',
+        description: 'Usted no puede registrarse como co-investigador.',
+        duration: 4000
+      });
       return;
     }
 
@@ -50,19 +61,31 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
         
         // Verificar si es colaborador
         const isCollab = await isUserCollaborator(userData.ID, evento.id);
-        
-        if (isCollab) {
+        console.log()
+
+        if (!isCollab?.data.has_role) {
           setSearchResult(userData);
-          toast.success('Investigador encontrado');
         } else {
-          toast.error('El investigador no está registrado como colaborador en este evento');
+          showToast.error({
+            title: 'Investigador registrado',
+            description: 'El investigador ya se encuentra registrado en el evento',
+            duration: 4000
+          });
         }
       } else {
-        toast.error('Investigador no encontrado');
+        showToast.error({
+          title: 'Error',
+          description: 'Investigador no encontrado',
+          duration: 4000
+        });
       }
     } catch (error) {
       console.error('Error buscando investigador:', error);
-      toast.error('Error al buscar el investigador');
+      showToast.error({
+        title: 'Error',
+        description: 'Error al buscar el investigador',
+        duration: 4000
+      });
     } finally {
       setIsSearching(false);
     }
@@ -78,7 +101,11 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
     );
 
     if (alreadyExists) {
-      toast.error('Este investigador ya ha sido agregado');
+      showToast.error({
+        title: 'Error al agregar co-investigador',
+        description: 'El co-investigador ya se encuentra en tu lista.',
+        duration: 4000
+      });
       return;
     }
 
@@ -91,24 +118,45 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
       institution: `${searchResult.investigator.academic_departament.name} - ${searchResult.investigator.academic_departament.faculty.name}`,
       academicGrade: searchResult.investigator.academic_grade.name,
       investigatorType: searchResult.investigator.investigator_type.name,
+      participant_type_id: "",
       isLoading: false,
       notFound: false
     };
 
-    // Agregar al array existente
-    const newIndex = formData.coInvestigators.length;
-    onUpdateCoInvestigator(newIndex, newCoInvestigator);
+    // CORREGIDO: Usar onInputChange para agregar al array
+    const newCoInvestigators = [...formData.coInvestigators, newCoInvestigator];
+    onInputChange('coInvestigators', newCoInvestigators);
 
     // Limpiar búsqueda
     setSearchDNI('');
     setSearchResult(null);
-    toast.success('Co-investigador agregado correctamente');
+    showToast.success({
+      title: 'Co-investigador agregado correctamente',
+      description: 'El colaborador ya aparece en tu lista de coinvestigadores',
+      duration: 4000
+    });
   };
 
   // Función para limpiar búsqueda
   const clearSearch = () => {
     setSearchDNI('');
     setSearchResult(null);
+  };
+
+  // CORREGIDO: Función para manejar cambio de tipo de participación del investigador principal
+  const handleParticipationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedTypeID = e.target.value;
+    onInputChange('investigatorPrincipalParticipationTypeID', selectedTypeID);
+  };
+
+  // AGREGADO: Función para manejar cambio de tipo de participación de co-investigadores
+  const handleCoInvestigatorParticipationChange = (index: number, participantTypeID: string) => {
+    const updatedCoInvestigators = [...formData.coInvestigators];
+    updatedCoInvestigators[index] = {
+      ...updatedCoInvestigators[index],
+      participant_type_id: participantTypeID
+    };
+    onInputChange('coInvestigators', updatedCoInvestigators);
   };
 
   return (
@@ -137,22 +185,44 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
                 </label>
                 <input
                   type="text"
-                  value={principalInvestigator.investigator.investigator_type.name}
+                  value={principalInvestigator.investigator?.investigator_type?.name || 'No disponible'}
                   disabled
                   className="w-full px-3 py-2 border border-blue-300 rounded-md bg-blue-100 text-gray-600 cursor-not-allowed"
                 />
               </div>
 
-              <div >
+              <div>
                 <label className="block text-sm font-medium text-blue-700 mb-2">
-                  Facultad
+                  Grado Académico
                 </label>
                 <input
                   type="text"
-                  value={`${principalInvestigator.investigator.academic_departament.faculty.name}`}
+                  value={principalInvestigator.investigator?.academic_grade?.name || 'No disponible'}
                   disabled
                   className="w-full px-3 py-2 border border-blue-300 rounded-md bg-blue-100 text-gray-600 cursor-not-allowed"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-blue-700 mb-2">
+                  Tipo de Participación <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.investigatorPrincipalParticipationTypeID || ''}
+                  onChange={handleParticipationChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  required
+                >
+                  <option value="">Seleccione un tipo de participación</option>
+                  {participationTypes.map((type) => (
+                    <option key={type.ID} value={type.ID}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+                {!formData.investigatorPrincipalParticipationTypeID && (
+                  <p className="text-sm text-red-600 mt-1">Este campo es obligatorio</p>
+                )}
               </div>
             </div>
           </div>
@@ -164,8 +234,8 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
         )}
       </div>
 
-      {/* <div className="my-8 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div> */}
       <div className="border-t-2 border-dashed border-blue-500 my-6"></div>
+
       {/* Co-investigadores */}
       <div>
         <h3 className="text-lg font-semibold mb-4">Co-investigadores</h3>
@@ -253,16 +323,16 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-600">Grado Académico:</span>
-                    <p className="text-sm text-gray-900">{searchResult.investigator?.academic_grade.name}</p>
+                    <p className="text-sm text-gray-900">{searchResult.investigator?.academic_grade?.name}</p>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-600">Tipo de Investigador:</span>
-                    <p className="text-sm text-gray-900">{searchResult.investigator?.investigator_type.name}</p>
+                    <p className="text-sm text-gray-900">{searchResult.investigator?.investigator_type?.name}</p>
                   </div>
                   <div className="md:col-span-2">
                     <span className="text-sm font-medium text-gray-600">Institución:</span>
                     <p className="text-sm text-gray-900">
-                      {`${searchResult.investigator?.academic_departament.name} - ${searchResult.investigator?.academic_departament.faculty.name}`}
+                      {`${searchResult.investigator?.academic_departament?.name} - ${searchResult.investigator?.academic_departament?.faculty?.name}`}
                     </p>
                   </div>
                 </div>
@@ -288,9 +358,11 @@ export const InvestigatorsStep: React.FC<InvestigatorsStepProps> = ({
                 key={index}
                 coInvestigator={coInvestigator}
                 index={index}
+                participationTypes={participationTypes} // AGREGADO: Pasamos los tipos de participación
                 onRemove={onRemoveCoInvestigator}
                 onUpdate={onUpdateCoInvestigator}
-                readOnly={true} // Nueva prop para hacer solo lectura
+                onParticipationChange={handleCoInvestigatorParticipationChange} // AGREGADO: Función para cambiar participación
+                readOnly={true}
               />
             ))
           ) : (

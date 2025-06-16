@@ -1,4 +1,3 @@
-// src/components/investigator/EventRegistrationCard.tsx
 import React, { useState } from 'react';
 import { 
   Calendar, 
@@ -9,8 +8,7 @@ import {
   CheckCircle, 
   AlertCircle,
   FileText,
-  User,
-  ExternalLink
+  User
 } from 'lucide-react';
 import { EventForComponent } from '@/types/events';
 import { PostulationModal } from './PostulationModal';
@@ -20,10 +18,18 @@ interface EventRegistrationCardProps {
 }
 
 export const EventRegistrationCard: React.FC<EventRegistrationCardProps> = ({ event }) => {
-  const [showRequirements, setShowRequirements] = useState(false);
+  // const [showRequirements, setShowRequirements] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
 
   const handleRegisterClick = () => {
+    if (
+      event.id_path_drive_file_posters.trim() === '' ||
+      event.id_path_drive_file_gallery.trim() === ''
+    ) {
+      setShowWarningModal(true);
+      return;
+    }
     setShowModal(true);
   };
 
@@ -55,7 +61,6 @@ export const EventRegistrationCard: React.FC<EventRegistrationCardProps> = ({ ev
 
   const participationPercentage = (event.currentParticipants / event.maxParticipants) * 100;
 
-  // Formatear fecha para mostrar
   const formatDisplayDate = () => {
     if (event.startDate === event.endDate) {
       return event.startDate;
@@ -67,7 +72,6 @@ export const EventRegistrationCard: React.FC<EventRegistrationCardProps> = ({ ev
     <>
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300">
         {/* Header con imagen de fondo */}
-        {/* <div className="relative h-48 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(/${event.image})` }}> */}
         <div className="relative h-48 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url("/CONFERECIS.png")` }}>
           <div className="absolute inset-0 bg-black bg-opacity-40"></div>
           <div className="absolute top-4 right-4">
@@ -108,7 +112,7 @@ export const EventRegistrationCard: React.FC<EventRegistrationCardProps> = ({ ev
         {/* Contenido principal */}
         <div className="p-6">
           {/* Descripción */}
-          <p className="text-gray-600 mb-6 leading-relaxed">
+          <p className="text-gray-600 mb-6 leading-relaxed text-justify hyphens-auto">
             {event.description}
           </p>
 
@@ -181,53 +185,6 @@ export const EventRegistrationCard: React.FC<EventRegistrationCardProps> = ({ ev
             </div>
           </div>
 
-          {/* Requisitos */}
-          <div className="mb-6">
-            <button
-              onClick={() => setShowRequirements(!showRequirements)}
-              className="flex items-center justify-between w-full text-left p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <div className="flex items-center space-x-2">
-                <FileText className="w-5 h-5 text-gray-500" />
-                <span className="font-medium text-gray-900">Requisitos para participar</span>
-              </div>
-              <ChevronRight 
-                className={`w-5 h-5 text-gray-400 transition-transform ${
-                  showRequirements ? 'rotate-90' : ''
-                }`} 
-              />
-            </button>
-            
-            {showRequirements && (
-              <div className="mt-3 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                <ul className="space-y-3">
-                  {event.requirements.map((requirement, index) => (
-                    <li key={index} className="flex items-start space-x-2">
-                      <CheckCircle className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <span className="text-sm text-blue-800">{requirement.text}</span>
-                        {requirement.link && (
-                          <div className="mt-1">
-                            <a
-                              href={requirement.link.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center text-xs text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors"
-                            >
-                              <FileText className="w-3 h-3 mr-1" />
-                              {requirement.link.label}
-                              <ExternalLink className="w-3 h-3 ml-1" />
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-
           {/* Botón de registro */}
           <div className="flex flex-col sm:flex-row gap-3">
             {event.status === 'open' && event.isActive ? (
@@ -270,11 +227,35 @@ export const EventRegistrationCard: React.FC<EventRegistrationCardProps> = ({ ev
         event={event.status === 'open' && event.isActive ? {
           id: event.ID,
           title: event.title,
-          deadline: event.deadline
+          deadline: event.deadline,
+          id_path_drive_file_posters: event.id_path_drive_file_posters,
         } : null}
         isOpen={showModal}
         onClose={() => setShowModal(false)}
       />
+
+      {/* Modal de advertencia (poster no configurado) */}
+      {showWarningModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
+            <div className="flex items-center justify-center text-yellow-500 mb-4">
+              <AlertCircle className="w-12 h-12" />
+            </div>
+            <h3 className="text-lg font-bold text-center mb-2">Evento no configurado</h3>
+            <p className="text-center text-gray-700 mb-6">
+              Este evento aún no está completamente configurado.
+            </p>
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowWarningModal(false)}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

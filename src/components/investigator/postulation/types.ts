@@ -3,6 +3,7 @@ export interface Event {
   id: string;
   title: string;
   deadline: string;
+  id_path_drive_file_posters: string;
 }
 
 export interface UserFromStorage {
@@ -10,6 +11,8 @@ export interface UserFromStorage {
   first_name: string;
   last_name: string;
   email: string;
+  identity_document: string;
+  investigator_id: string;
   investigator: {
     academic_grade: {
       name: string;
@@ -58,6 +61,12 @@ export interface ResearchLinesResponse {
   success: boolean;
 }
 
+export interface ParticipationType {
+  ID: string;
+  name: string;
+  description: string;
+  is_active: boolean;
+}
 export interface CoInvestigator {
   id: string;
   dni: string;
@@ -66,6 +75,8 @@ export interface CoInvestigator {
   institution: string;
   academicGrade: string;
   investigatorType: string;
+  participant_type_id: string; // Cambiado a string para almacenar el ID
+  participantTypeName?: string; // Nuevo campo para mostrar el nombre
   isLoading: boolean;
   notFound: boolean;
 }
@@ -73,6 +84,9 @@ export interface CoInvestigator {
 export interface PostulationFormData {
   posterTitle: string;
   researchArea: string;
+  investigatorPrincipal: string;
+  investigatorPrincipalParticipationTypeID: string;
+  idUploadDirFile: string;
   coInvestigators: CoInvestigator[];
   posterFile: File | null;
   authorizationFile: File | null;

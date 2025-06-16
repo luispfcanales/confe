@@ -159,20 +159,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.log('🔍 Verifying state after logout...');
       
       // Paso 4: Intentar llamar al backend (opcional)
-      try {
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          await fetch('http://localhost:3000/api/auth/logout', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          });
-        }
-      } catch (backendError) {
-        console.warn('Backend logout failed (not critical):', backendError);
-      }
+      // try {
+      //   const token = localStorage.getItem('authToken');
+      //   if (token) {
+      //     await fetch('http://localhost:3000/api/auth/logout', {
+      //       method: 'POST',
+      //       headers: {
+      //         'Authorization': `Bearer ${token}`,
+      //         'Content-Type': 'application/json',
+      //       },
+      //     });
+      //   }
+      // } catch (backendError) {
+      //   console.warn('Backend logout failed (not critical):', backendError);
+      // }
       
       // Paso 5: Verificación final y redirección
       setTimeout(() => {
