@@ -26,17 +26,37 @@ export const FilesStep: React.FC<FilesStepProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const getFileIcon = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    switch (extension) {
+      case 'pdf':
+        return '📄';
+      case 'ppt':
+      case 'pptx':
+        return '📊';
+      case 'doc':
+      case 'docx':
+        return '📝';
+      default:
+        return '📁';
+    }
+  };
+
   const FileUploadCard = ({ 
     title, 
     description, 
     field, 
     file, 
+    acceptedTypes,
+    acceptAttribute,
     required = true 
   }: {
     title: string;
     description: string;
     field: string;
     file: File | null;
+    acceptedTypes: string;
+    acceptAttribute: string;
     required?: boolean;
   }) => (
     <div className="border border-gray-300 rounded-lg p-4">
@@ -56,7 +76,7 @@ export const FilesStep: React.FC<FilesStepProps> = ({
               </div>
               <input
                 type="file"
-                accept=".pdf"
+                accept={acceptAttribute}
                 onChange={handleFileUpload(field)}
                 className="hidden"
                 id={`file-${field}`}
@@ -65,10 +85,10 @@ export const FilesStep: React.FC<FilesStepProps> = ({
                 htmlFor={`file-${field}`}
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 cursor-pointer"
               >
-                Seleccionar Archivo PDF
+                Seleccionar Archivo {acceptedTypes}
               </label>
               <div className="text-xs text-gray-500 mt-2">
-                Máximo 10MB • Solo archivos PDF
+                Máximo 10MB • Solo archivos {acceptedTypes}
               </div>
             </div>
           ) : (
@@ -78,7 +98,7 @@ export const FilesStep: React.FC<FilesStepProps> = ({
                 <span className="font-medium text-green-800">Archivo cargado</span>
               </div>
               <div className="text-sm text-green-700">
-                <div>📄 {file.name}</div>
+                <div>{getFileIcon(file.name)} {file.name}</div>
                 <div className="text-xs text-green-600 mt-1">
                   {formatFileSize(file.size)} • {file.type}
                 </div>
@@ -102,24 +122,41 @@ export const FilesStep: React.FC<FilesStepProps> = ({
       <div>
         <h3 className="text-lg font-semibold mb-4">Subir Archivos</h3>
         
-        {/* Póster Científico */}
+        {/* Póster Científico - PDF */}
         <div className="mb-6">
           <FileUploadCard
-            title="Póster Científico"
+            title="Póster Científico (PDF)"
             description="Sube tu póster en formato PDF siguiendo la plantilla oficial descargada en el paso 1"
             field="posterFile"
             file={formData.posterFile}
+            acceptedTypes="PDF"
+            acceptAttribute=".pdf"
             required={true}
           />
         </div>
 
-        {/* Formato de Autorización */}
+        {/* Póster Científico - PPT */}
         <div className="mb-6">
           <FileUploadCard
-            title="Formato de Autorización"
-            description="Sube el formato de autorización completamente firmado en formato PDF"
+            title="Póster Científico (PowerPoint)"
+            description="Sube tu póster en formato PowerPoint (.ppt o .pptx) como archivo editable"
+            field="posterFilePPT"
+            file={formData.posterFilePPT}
+            acceptedTypes="PPT/PPTX"
+            acceptAttribute=".ppt,.pptx"
+            required={true}
+          />
+        </div>
+
+        {/* Formato de Autorización - Word */}
+        <div className="mb-6">
+          <FileUploadCard
+            title="Formato de Autorización (Word)"
+            description="Sube el formato de autorización completamente firmado en formato Word (.doc o .docx)"
             field="authorizationFile"
             file={formData.authorizationFile}
+            acceptedTypes="DOC/DOCX"
+            acceptAttribute=".doc,.docx"
             required={true}
           />
         </div>
@@ -165,9 +202,10 @@ export const FilesStep: React.FC<FilesStepProps> = ({
           <div>
             <h4 className="font-medium text-amber-800 mb-2">Verificación Final</h4>
             <ul className="text-sm text-amber-700 space-y-1">
-              <li>• Verifica que ambos archivos estén en formato PDF</li>
-              <li>• El póster debe seguir exactamente la plantilla oficial</li>
-              <li>• El formato de autorización debe estar completamente firmado</li>
+              <li>• <strong>Póster PDF:</strong> Debe seguir exactamente la plantilla oficial</li>
+              <li>• <strong>Póster PPT:</strong> Archivo editable en PowerPoint (.ppt o .pptx)</li>
+              <li>• <strong>Autorización:</strong> Documento Word completamente firmado (.doc o .docx)</li>
+              <li>• Todos los archivos deben ser menores a 10MB</li>
               <li>• Una vez enviada, la postulación no podrá ser modificada</li>
             </ul>
           </div>

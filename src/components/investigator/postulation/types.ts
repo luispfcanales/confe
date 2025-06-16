@@ -89,6 +89,7 @@ export interface PostulationFormData {
   idUploadDirFile: string;
   coInvestigators: CoInvestigator[];
   posterFile: File | null;
+  posterFilePPT: File | null;
   authorizationFile: File | null;
   acceptsTerms: boolean;
   acceptsDataProcessing: boolean;

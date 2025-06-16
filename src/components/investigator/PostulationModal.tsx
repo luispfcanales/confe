@@ -44,34 +44,11 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
     idUploadDirFile: '',
     coInvestigators: [],
     posterFile: null,
+    posterFilePPT: null,
     authorizationFile: null,
     acceptsTerms: false,
     acceptsDataProcessing: false
   });
-
-  // Este efecto ahora se maneja en el efecto de apertura del modal
-  // Se mantiene comentado como referencia pero ya no es necesario
-  /*
-  useEffect(() => {
-    const checkCollaboratorStatus = async () => {
-      if (principalInvestigator && event) {
-        setIsCheckingCollaborator(true);
-        try {
-          const response = await isUserCollaborator(principalInvestigator.ID, event.id);
-          setIsCollaborator(!!response?.data.has_role);
-        } catch (error) {
-          console.error('Error checking collaborator status:', error);
-          // En caso de error, permitir continuar (asumir que no es colaborador)
-          setIsCollaborator(false);
-        } finally {
-          setIsCheckingCollaborator(false);
-        }
-      }
-    };
-
-    checkCollaboratorStatus();
-  }, [principalInvestigator?.ID, event?.id]);
-  */
 
   useEffect(() => {
     const loadTypes = async () => {
@@ -300,6 +277,9 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
       if (formData.posterFile) {
         submitFormData.append('posterFile', formData.posterFile);
       }
+      if (formData.posterFilePPT) {
+        submitFormData.append('posterPPTFile', formData.posterFilePPT);
+      } 
       if (formData.authorizationFile) {
         submitFormData.append('authorizationFile', formData.authorizationFile);
       }
@@ -335,6 +315,7 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
         idUploadDirFile: '',
         coInvestigators: [],
         posterFile: null,
+        posterFilePPT: null,
         authorizationFile: null,
         acceptsTerms: false,
         acceptsDataProcessing: false
@@ -381,6 +362,7 @@ export const PostulationModal: React.FC<PostulationModalProps> = ({
         return formData.acceptsTerms && 
                formData.acceptsDataProcessing && 
                formData.posterFile && 
+               formData.posterFilePPT &&
                formData.authorizationFile;
       default:
         return true;
