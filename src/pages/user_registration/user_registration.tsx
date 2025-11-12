@@ -76,8 +76,6 @@ const UserRegistration = () => {
   }
 // <div className="min-h-screen bg-gray-500 py-8">
   return (
-    // <div className="min-h-screen bg-gray-50 py-8">
-    
     <div className="min-h-screen py-8" style={{
       backgroundColor: 'white',
       backgroundImage: 'radial-gradient(circle,rgb(25, 34, 53) 0.9px, transparent 0.9px)',

@@ -126,7 +126,12 @@ const PublicationsPage = (): JSX.Element => {
   const years = Object.keys(postersByYear).sort((a, b) => Number(b) - Number(a))
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100/80 to-gray-200/80 p-6">
+    <div className="min-h-screen p-6" style={{
+      backgroundColor: '#f5f5f5',
+      backgroundImage: 'radial-gradient(circle,rgb(25, 34, 53) 1px, transparent 0.5px)',
+      backgroundSize: '24px 24px'
+    }}>
+      {/* <main className="flex-1 ml-72 min-h-screen bg-slate-50 p-8" > */}
       <div className="container max-w-7xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
           <Button

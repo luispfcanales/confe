@@ -195,7 +195,7 @@ export const EventDriveView: React.FC<EventDriveViewProps> = ({ event }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* Header del evento */}
         <EventHeader
